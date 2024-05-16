@@ -13,6 +13,7 @@ import {
   Package2,
   Package,
   LineChart,
+  WifiIcon,
 } from "lucide-react";
 import { ModeToggle } from "@/components/mode_toggle";
 import { usePathname } from "next/navigation";
@@ -44,9 +45,10 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { toast } from "./ui/use-toast";
-
+import { MdSignalWifiConnectedNoInternet0 } from "react-icons/md";
 type NavbarForProjectProps = {
   invitationCode: string;
+  connectionStatus: boolean
 }
 
 type MenuItem = {
@@ -211,7 +213,7 @@ export const NavbarForProject = (props: NavbarForProjectProps) => {
               title: `Success`,
               className: "text-white bg-green-900",
               description: "The invitation code has been copied to the clipboard",
-              
+
           });
       } catch (error) {
           toast({
@@ -291,7 +293,17 @@ const ShareCodeForPhone=() => {
               </div>
               {/* Right Section */}
               <div className="flex items-center justify-end">
-                <ShareCodeForPhone />
+                <div className="mr-3"><ShareCodeForPhone /></div>
+                
+                {props.connectionStatus ? (
+                  <div className="flex items-center justify-center aspect-square w-5 rounded-full bg-green-500 dark:bg-green-600">
+                    <WifiIcon className="h-4 w-4 text-white" />
+                  </div>) : (
+                    <div className="flex items-center justify-center aspect-square w-5 rounded-full bg-red-500 dark:bg-red-500">
+                      <MdSignalWifiConnectedNoInternet0 className="h-4 w-4 text-white" />
+                    </div>
+                )}
+                
                 <UserDropDownForPhone />
               </div>
             </NavbarContent>
@@ -330,6 +342,7 @@ const ShareCodeForPhone=() => {
               {/* Right Section */}
               <div className=" items-center justify-end space-x-2 hidden sm:flex">
                 {/* Profile Popover */}
+                
                 <div className="mr-1">
                   <ShareCode />
                 </div>
@@ -339,6 +352,14 @@ const ShareCodeForPhone=() => {
                   </div>
                 </div>
                 <ModeToggle />
+                {props.connectionStatus ? (
+                  <div className="flex items-center justify-center aspect-square w-5 rounded-full bg-green-500 dark:bg-green-600">
+                    <WifiIcon className="h-4 w-4 text-white" />
+                  </div>) : (
+                    <div className="flex items-center justify-center aspect-square w-5 rounded-full bg-red-500 dark:bg-red-500">
+                      <MdSignalWifiConnectedNoInternet0 className="h-4 w-4 text-white" />
+                    </div>
+                )}
                 <UserDropDownForPC />
               </div>
             </NavbarContent>

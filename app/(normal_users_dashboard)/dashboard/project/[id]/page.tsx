@@ -25,7 +25,12 @@ import { generateColor } from "@marko19907/string-to-color";
 import { useSession } from "next-auth/react";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { NavbarForProject } from "@/components/navbar_for_project";
-
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 const TitleComponent = ({
   title,
@@ -87,6 +92,7 @@ export default function Page() {
   const [isUserChoosedToLoadUnsavedWork, setIsUserChoosedToLoadUnsavedWork] = useState<boolean>(false); // Check if user choosed to load unsaved work [true, false]
   const [isUserChoosedToDiscardUnsavedWork, setIsUserChoosedToDiscardUnsavedWork] = useState<boolean>(false); // Check if user choosed to discard unsaved work [true, false]
   const [isLoadedFromUserChoice, setIsLoadedFromUserChoice] = useState<boolean>(false); // Check if workspace is loaded from user choice [true, false]
+  const [isConnected, setIsConnected] = useState<boolean>(false); // Check if websocket is connected [true, false]
   let lastSentTime: number = 0;
   
   
@@ -704,25 +710,54 @@ export default function Page() {
     }
   }, [isUserChoosedToLoadUnsavedWork, isUserChoosedToDiscardUnsavedWork, isLoadedFromUserChoice]);
 
+  // Update the connection status based on the websocket connection
+  useEffect(() => {
+    if(ws?.connected && blocksWs?.connected) {
+      setIsConnected(true);
+    } else {
+      setIsConnected(false);
+    }
+  }, [ws, blocksWs]);
+
   if(loading || toolbox.length == 0) return <BlocklyProjectSkeleton />
   //if(!ws?.connected || !blocksWs?.connected && workspace)  return <ProjectNotFound message="Sorry but we were not able to load you project try again later or contact our support team if this problem persist." />
   if(permissionDenied) return <ProjectNotFound message={errorMessage}/>
   if(!isLoadedFromUserChoice) return <DisplayAlertIfOldDataExist setIsUserChoosedToLoadUnsavedWork={setIsUserChoosedToLoadUnsavedWork} setIsUserChoosedToDiscardUnsavedWork={setIsUserChoosedToDiscardUnsavedWork} />
   return (
     <>
-    <NavbarForProject invitationCode={projectData.invitationCode} />
-    <div className="flex flex-col">
+    <NavbarForProject invitationCode={projectData.invitationCode} connectionStatus={isConnected} />
+    <div className="flex flex-col mt-3">
      
     {/* sm:hidden  */}
     <div className="px-2 flex">
           <div className="flex-1">&nbsp;</div>
           <div className="flex flex-row flex-wrap gap-2">
-            <Button variant={'ghost'} className="hover:bg-transparent" onClick={() => saveWorkspace()} disabled={code == "" || !workspaceChanged}>
-              <Save className="h-5 w-5" />
-            </Button>
-            <Button variant={'ghost'} className="hover:bg-transparent" onClick={() => handleSendCommandsToRobot} disabled={code == ""}>
-              <Play className="h-5 w-5 text-red-600" />
-            </Button>
+            
+            
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                <Button variant={'ghost'} className="hover:bg-transparent" onClick={() => saveWorkspace()} disabled={code == "" || !workspaceChanged}>
+                  <Save className="h-5 w-5" />
+                </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Save project</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                <Button variant={'ghost'} className="hover:bg-transparent" onClick={() => handleSendCommandsToRobot} disabled={code == ""}>
+                  <Play className="h-5 w-5 text-red-600" />
+                </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Run</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
 

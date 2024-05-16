@@ -54,7 +54,7 @@ export const AnimatedTooltip = ({ items }: Props) => {
     <>
       {items.slice(0, 5).map((item, idx) => (
         <div
-          className="-mr-3  relative group z-[9999]"
+          className="mr-[-0.36rem]  relative group z-[9999]"
           key={item.name}
           onMouseEnter={() => setHoveredIndex(item.id)}
           onMouseLeave={() => setHoveredIndex(null)}
@@ -90,18 +90,21 @@ export const AnimatedTooltip = ({ items }: Props) => {
             </motion.div>
           )}
           
+          {/* PC & TABLET */}
           <div className="relative hidden sm:block">
-            <p className="absolute z-50 left-3 right-0 bottom-0 top-2 text-md">{getFirstLetter(item.name)}</p>
+            <p className="absolute z-50 left-3 right-0 bottom-0 top-1 text-md">{getFirstLetter(item.name)}</p>
             <Avatar
               key={item.id}
-              size={38}
+              size={32}
               name={item.name}
               variant="marble"
               colors={['#92A1C6', '#146A7C', '#F0AB3D', '#C271B4', '#C20D90']}
             />
           </div>
+
+          {/* MOBILE */}
           <div className="relative block sm:hidden">
-            <p className="absolute z-50 left-1 right-0 bottom-0 top-1 text-md">{getFirstLetter(item.name)}</p>
+            <p className="absolute z-50 left-[0.6rem] right-0 bottom-0 top-1 text-md">{getFirstLetter(item.name)}</p>
             <Avatar
               key={item.id}
               size={30}
@@ -139,12 +142,12 @@ export function DropdownMenuCheckboxes({ items }: { items: { name: string; desig
       <DropdownMenuTrigger className="relative z-[9999]">
         <div className="relative hidden sm:block">
           <Avatar
-            size={38}
+            size={32}
             name="Add"
             variant="marble"
             colors={["#92A1C6", "#146A7C", "#F0AB3D", "#C271B4", "#C20D90"]}
           />
-          <p className="absolute left-0 right-0 bottom-0 top-2 text-md">+5</p>
+          <p className="absolute left-0 right-0 bottom-0 top-1 text-md">+5</p>
         </div>
         <div className="relative block sm:hidden">
           <Avatar
