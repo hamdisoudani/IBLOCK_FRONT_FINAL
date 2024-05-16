@@ -14,6 +14,8 @@ import {
   Package,
   LineChart,
   WifiIcon,
+  Share,
+  PlusCircleIcon,
 } from "lucide-react";
 import { ModeToggle } from "@/components/mode_toggle";
 import { usePathname } from "next/navigation";
@@ -30,8 +32,8 @@ import {
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu";
 import LogOutComponent, { MobileLogOutComponent } from "./logout";
-import { useProfileContext } from "./context/userprofile.context";
-import { RiUserSharedFill } from "react-icons/ri";
+import { accessTokenType, useProfileContext } from "./context/userprofile.context";
+import { MdAddCircle } from "react-icons/md";
 import {AnimatedTooltip} from "@/components/ui/animated-tooltip";
 import {
   AlertDialog,
@@ -48,7 +50,8 @@ import { toast } from "./ui/use-toast";
 import { MdSignalWifiConnectedNoInternet0 } from "react-icons/md";
 type NavbarForProjectProps = {
   invitationCode: string;
-  connectionStatus: boolean
+  connectionStatus: boolean,
+  connectedUsers: accessTokenType[];
 }
 
 type MenuItem = {
@@ -188,23 +191,7 @@ export const NavbarForProject = (props: NavbarForProjectProps) => {
         ),
       }
     ];
-    const people = [
-        {
-          id: 1,
-          name: "ahmed",
-          designation: "teacher"
-         },
-        {
-          id: 2,
-          name: "mohamed",
-          designation: "Student"
-          },
-        {
-          id: 3,
-          name: "Jane Smith",
-          designation: "Student"
-       }
-    ];
+  
     const handleCopyInvitationCode = () => {
       try {
           navigator.clipboard.writeText(props.invitationCode || "");
@@ -229,14 +216,13 @@ export const NavbarForProject = (props: NavbarForProjectProps) => {
             <AlertDialogTrigger asChild>
               <Button variant="outline">
                 <div className="flex flex-row">
-                  <RiUserSharedFill  className="w-5 h-5" />
-                  Shared code
+                  <PlusCircleIcon  className="w-5 h-5" />
                 </div>
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-              <AlertDialogTitle>Share code</AlertDialogTitle>
+              <AlertDialogTitle>Share code with your teammates</AlertDialogTitle>
               <AlertDialogDescription>
               {props.invitationCode}
               </AlertDialogDescription>
@@ -254,12 +240,11 @@ const ShareCodeForPhone=() => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-      
-            <RiUserSharedFill  className="w-5 h-5" />
+        <PlusCircleIcon  className="w-5 h-5" />
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Share code</AlertDialogTitle>
+          <AlertDialogTitle>Share code with your teammates</AlertDialogTitle>
           <AlertDialogDescription>
           {props.invitationCode}
           </AlertDialogDescription>
@@ -288,7 +273,7 @@ const ShareCodeForPhone=() => {
               {/* Left Section */}
               <div className="flex-1">
                 <div className="flex flex-row items-center w-full">
-                  <AnimatedTooltip items={people} />
+                  <AnimatedTooltip items={props.connectedUsers} />
                 </div>
               </div>
               {/* Right Section */}
@@ -348,7 +333,7 @@ const ShareCodeForPhone=() => {
                 </div>
                 <div className="sm:block hidden">
                   <div className="flex flex-row items-center justify-center mr-1 w-full">
-                    <AnimatedTooltip items={people} />
+                    <AnimatedTooltip items={props.connectedUsers} />
                   </div>
                 </div>
                 <ModeToggle />

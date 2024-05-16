@@ -31,6 +31,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { set } from "react-hook-form";
 
 const TitleComponent = ({
   title,
@@ -93,6 +94,7 @@ export default function Page() {
   const [isUserChoosedToDiscardUnsavedWork, setIsUserChoosedToDiscardUnsavedWork] = useState<boolean>(false); // Check if user choosed to discard unsaved work [true, false]
   const [isLoadedFromUserChoice, setIsLoadedFromUserChoice] = useState<boolean>(false); // Check if workspace is loaded from user choice [true, false]
   const [isConnected, setIsConnected] = useState<boolean>(false); // Check if websocket is connected [true, false]
+  const [connectedUsers, setConnectedUsers] = useState<accessTokenType[]>([]); // Connected users [name, id, role, workspace_data, connected_at, updated_at]
   let lastSentTime: number = 0;
   
   
@@ -483,12 +485,14 @@ export default function Page() {
 
         // });
         ws.on('connected_users', (data: any) => {
-          console.log("Connected users", data)
+          if(data.connectedUsers) {
+            setConnectedUsers(data.connectedUsers);
+          }
         });
         ws?.on("user_joined", (data) => {
           const user: accessTokenType = data.user;
           const connectedUsers: [] = data.connectedUsers;
-          console.log("User joined", data)
+          setConnectedUsers(connectedUsers || []);
           if(user.userId.toString() !== userInformation?.userId) {
             toast({
               variant: "default",
@@ -501,7 +505,7 @@ export default function Page() {
         ws?.on("user_left", (data: any) => {
           const user: accessTokenType = data.user;
           const connectedUsers: [] = data.connectedUsers;
-          console.log("User left", user.name, connectedUsers)
+          setConnectedUsers(connectedUsers || []);
           if(user.userId.toString() !== userInformation?.userId) {
             toast({
               variant: "default",
@@ -735,7 +739,7 @@ export default function Page() {
   if(!isLoadedFromUserChoice) return <DisplayAlertIfOldDataExist setIsUserChoosedToLoadUnsavedWork={setIsUserChoosedToLoadUnsavedWork} setIsUserChoosedToDiscardUnsavedWork={setIsUserChoosedToDiscardUnsavedWork} />
   return (
     <>
-    <NavbarForProject invitationCode={projectData.invitationCode} connectionStatus={isConnected} />
+    <NavbarForProject invitationCode={projectData.invitationCode} connectionStatus={isConnected} connectedUsers={connectedUsers} />
     <div className="flex flex-col mt-3">
      
     {/* sm:hidden  */}

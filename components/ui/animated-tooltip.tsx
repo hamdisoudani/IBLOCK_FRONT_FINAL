@@ -14,13 +14,9 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 
 import Avatar from "boring-avatars";
 import { ScrollArea } from "./scroll-area";
+import { accessTokenType } from "../context/userprofile.context";
 type Props = {
-  items: {
-    id: number;
-    name: string;
-    designation: string;
-    image?: StaticImageData;
-  }[];
+  items: accessTokenType[];
 };
 
 export const AnimatedTooltip = ({ items }: Props) => {
@@ -56,10 +52,10 @@ export const AnimatedTooltip = ({ items }: Props) => {
         <div
           className="mr-[-0.36rem]  relative group z-[9999]"
           key={item.name}
-          onMouseEnter={() => setHoveredIndex(item.id)}
+          onMouseEnter={() => setHoveredIndex(Number(item.userId))}
           onMouseLeave={() => setHoveredIndex(null)}
         >
-          {hoveredIndex === item.id && (
+          {hoveredIndex === Number(item.userId) && (
             <motion.div
               initial={{ opacity: 0, y: 30, scale: 0.6 }}
               animate={{
@@ -86,7 +82,7 @@ export const AnimatedTooltip = ({ items }: Props) => {
               <div className="font-bold text-white relative z-30 text-base">
                 {item.name}
               </div>
-              <div className="text-white text-xs">{item.designation}</div>
+              <div className="text-white text-xs">{item.role}</div>
             </motion.div>
           )}
           
@@ -94,7 +90,7 @@ export const AnimatedTooltip = ({ items }: Props) => {
           <div className="relative hidden sm:block">
             <p className="absolute z-50 left-3 right-0 bottom-0 top-1 text-md">{getFirstLetter(item.name)}</p>
             <Avatar
-              key={item.id}
+              key={item.userId}
               size={32}
               name={item.name}
               variant="marble"
@@ -106,7 +102,7 @@ export const AnimatedTooltip = ({ items }: Props) => {
           <div className="relative block sm:hidden">
             <p className="absolute z-50 left-[0.6rem] right-0 bottom-0 top-1 text-md">{getFirstLetter(item.name)}</p>
             <Avatar
-              key={item.id}
+              key={item.userId}
               size={30}
               name={item.name}
               variant="marble"
@@ -124,8 +120,8 @@ export const AnimatedTooltip = ({ items }: Props) => {
 };
 
 
-export function DropdownMenuCheckboxes({ items }: { items: { name: string; designation: string }[] }) {
-  const [selectedItems, setSelectedItems] = React.useState<{ name: string; designation: string }[]>([]);
+export function DropdownMenuCheckboxes({ items }: {items: accessTokenType[] }) {
+  const [selectedItems, setSelectedItems] = React.useState<accessTokenType[]>([]);
 
   const handleCheckedChange = (index: number, checked: boolean) => {
     const updatedSelectedItems = [...selectedItems];
@@ -176,7 +172,7 @@ export function DropdownMenuCheckboxes({ items }: { items: { name: string; desig
                 colors={["#92A1C6", "#146A7C", "#F0AB3D", "#C271B4", "#C20D90"]}
               />
               <p className="truncate ">{item.name}</p>
-              {item.designation && <span className="text-xs text-gray-500 truncate ">{item.designation}</span>}
+              {item.role && <span className="text-xs text-gray-500 truncate ">{item.role}</span>}
             </DropdownMenuCheckboxItem>
           ))}
         </ScrollArea>
