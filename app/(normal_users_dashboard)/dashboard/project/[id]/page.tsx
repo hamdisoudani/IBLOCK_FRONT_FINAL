@@ -24,6 +24,7 @@ import { generateColor } from "@marko19907/string-to-color";
 //import "@/plugins/blockly/generator/generator"
 import { useSession } from "next-auth/react";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { NavbarForProject } from "@/components/navbar_for_project";
 
 
 const TitleComponent = ({
@@ -223,7 +224,7 @@ export default function Page() {
     const fetchProjectSavedData = async () => {
       await axiosInstance.get(`/projects/${params.id}`).then((res) => {
         console.log(res.data)
-        setProjectData(res.data.projectData);
+        setProjectData(res.data.projectDetails);
         setWorkHistory(res.data.workHistory);
         setUserRole(res.data.userRole);
         if(res.data.workHistory != null) {
@@ -718,6 +719,8 @@ export default function Page() {
   if(permissionDenied) return <ProjectNotFound message={errorMessage}/>
   if(!isLoadedFromUserChoice) return <DisplayAlertIfOldDataExist setIsUserChoosedToLoadUnsavedWork={setIsUserChoosedToLoadUnsavedWork} setIsUserChoosedToDiscardUnsavedWork={setIsUserChoosedToDiscardUnsavedWork} />
   return (
+    <>
+    <NavbarForProject invitationCode={projectData.invitationCode} />
     <div className="flex flex-col">
      
     {/* sm:hidden  */}
@@ -797,7 +800,7 @@ export default function Page() {
     </div>
   </div>
   
-</div>
-
+    </div>
+    </>
   )
 }
