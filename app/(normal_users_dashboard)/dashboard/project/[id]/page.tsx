@@ -24,7 +24,7 @@ import { generateColor } from "@marko19907/string-to-color";
 //import "@/plugins/blockly/generator/generator"
 import { useSession } from "next-auth/react";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { set } from "react-hook-form";
+
 
 const TitleComponent = ({
   title,
@@ -81,6 +81,7 @@ export default function Page() {
   const { toast } = useToast();
   const params = useParams();
   const { userInformation } = useProfileContext();
+  const [workspaceChanged, setWorkspaceChanged] = useState<boolean>(false); // Check if workspace is changed [true, false]
   const [isUnsavedWork, setIsUnsavedWork] = useState<boolean>(false); // Check if there is any unsaved work [true, false]
   const [isUserChoosedToLoadUnsavedWork, setIsUserChoosedToLoadUnsavedWork] = useState<boolean>(false); // Check if user choosed to load unsaved work [true, false]
   const [isUserChoosedToDiscardUnsavedWork, setIsUserChoosedToDiscardUnsavedWork] = useState<boolean>(false); // Check if user choosed to discard unsaved work [true, false]
@@ -216,10 +217,7 @@ export default function Page() {
         //Blockly.defineBlocksWithJsonArray(blocks);
       }).catch((err) => {
         console.log(err.response.data);
-      }).finally(() => {
-        setLoading(false);
-      }
-      )
+      })
     }
 
     const fetchProjectSavedData = async () => {
@@ -228,25 +226,30 @@ export default function Page() {
         setProjectData(res.data.projectData);
         setWorkHistory(res.data.workHistory);
         setUserRole(res.data.userRole);
-        if(res.data.workHistory.mainCopy) {
+        if(res.data.workHistory != null) {
           //setXml(res.data.workHistory.mainCopy);
-          setIsUnsavedWork(true);
-        } else if(res.data.workHistory.workData && !res.data.workHistory.mainCopy) {
-          setXml(res.data.workHistory.workData);
-          setIsUnsavedWork(false);
-          setIsLoadedFromUserChoice(true);
+          if(typeof res.data.workHistory.mainCopy != "undefined" && res.data.workHistory.mainCopy != null && res.data.workHistory.mainCopy != "") {
+            setIsUnsavedWork(true);
+          } else if(res.data.workHistory.workData != null) {
+            setXml(res.data.workHistory.workData || "");
+            console.log("loaded", res.data.workHistory.workData)
+            setIsUnsavedWork(false);
+            setIsLoadedFromUserChoice(true);
+          } else {
+            setIsLoadedFromUserChoice(true);
+            setIsUnsavedWork(false);
+          }
+          
         } else {
           setIsLoadedFromUserChoice(true);
-          setIsUnsavedWork(false);
         }
         
 
-      }).catch((err) => {
-        console.log(err.response.data);
-        if(err.response.status == 403) {
-          setPermissionDenied(true);
-          setErrorMessage(err.response.data.message);
-        }
+      }).catch((err: any) => {
+        setPermissionDenied(true);
+        console.log(err)
+      }).finally(() => {
+        setLoading(false);
       })
     }
     fetchProjectSavedData();
@@ -298,10 +301,20 @@ export default function Page() {
         if(xml) {
           // clear workspace data and load from xml
           Blockly.Events.disable();
-          const parser = new DOMParser()
-          const xmlElement = Blockly.utils.xml.textToDom(xml)
-          Blockly.Xml.clearWorkspaceAndLoadFromXml(xmlElement, workspace);
-          generateCode();
+          try {
+            const parser = new DOMParser()
+            const xmlElement = Blockly.utils.xml.textToDom(xml)
+            Blockly.Xml.clearWorkspaceAndLoadFromXml(xmlElement, workspace);
+            generateCode();
+          } catch (error) {
+            toast({
+              title: "Error",
+              description: "There was an error while loading the workspace data",
+              duration: 5000,
+              variant: "destructive"
+            })
+          }
+          
           Blockly.Events.enable();
         }
         var svg = workspace?.getParentSvg();
@@ -343,7 +356,7 @@ export default function Page() {
   useEffect(() => {
     const listenToWorkSpaceChanges = (event: any) => {
 
-      
+      if(!workspaceChanged) setWorkspaceChanged(true);
       // Handle block creation event
       if(event.type == Blockly.Events.BLOCK_CREATE) {
         var block = workspace?.getBlockById(event.blockId);
@@ -693,7 +706,7 @@ export default function Page() {
   if(loading || toolbox.length == 0) return <BlocklyProjectSkeleton />
   //if(!ws?.connected || !blocksWs?.connected && workspace)  return <ProjectNotFound message="Sorry but we were not able to load you project try again later or contact our support team if this problem persist." />
   if(permissionDenied) return <ProjectNotFound message={errorMessage}/>
-  if(isUnsavedWork && !isUserChoosedToLoadUnsavedWork && !isUserChoosedToDiscardUnsavedWork) return <DisplayAlertIfOldDataExist setIsUserChoosedToLoadUnsavedWork={setIsUserChoosedToLoadUnsavedWork} setIsUserChoosedToDiscardUnsavedWork={setIsUserChoosedToDiscardUnsavedWork} />
+  if(!isLoadedFromUserChoice) return <DisplayAlertIfOldDataExist setIsUserChoosedToLoadUnsavedWork={setIsUserChoosedToLoadUnsavedWork} setIsUserChoosedToDiscardUnsavedWork={setIsUserChoosedToDiscardUnsavedWork} />
   return (
     <div className="flex flex-col">
      
@@ -701,7 +714,7 @@ export default function Page() {
     <div className="px-2 flex">
           <div className="flex-1">&nbsp;</div>
           <div className="flex flex-row flex-wrap gap-2">
-            <Button variant={'ghost'} className="hover:bg-transparent" onClick={() => saveWorkspace()} disabled={code == "" || code == workHistory.workData}>
+            <Button variant={'ghost'} className="hover:bg-transparent" onClick={() => saveWorkspace()} disabled={code == "" || !workspaceChanged}>
               <Save className="h-5 w-5" />
             </Button>
             <Button variant={'ghost'} className="hover:bg-transparent" onClick={() => handleSendCommandsToRobot} disabled={code == ""}>

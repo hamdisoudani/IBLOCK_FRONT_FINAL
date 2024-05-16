@@ -230,7 +230,7 @@ export const FollowPointer = ({
           "px-2 py-2 bg-neutral-200 text-white whitespace-nowrap min-w-max text-xs rounded-full"
         }
       >
-        {role == "owner" ? `${title} (owner)` : title || `William Shakespeare`}
+        {role == "owner" ? `${title} (owner)` : title || `unknown user`}
       </motion.div>
     </motion.div>
   );
