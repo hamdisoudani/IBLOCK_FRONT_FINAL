@@ -468,6 +468,7 @@ export default function Page() {
         connectToWebSocket(`https://iblock-back-test.onrender.com/?projectId=${params.id}`, setWs);
       }
       if(ws?.connected) {
+        ws.emit("get_connected_users", {projectID: params.id})
         toast({
           title: "Connected",
           description: "You are now connected to the server",
@@ -481,22 +482,31 @@ export default function Page() {
         //   Blockly.Events.enable();
 
         // });
-        ws?.on("user_joined", (data: accessTokenType) => {
-          if(data.userId.toString() !== userInformation?.userId) {
+        ws.on('connected_users', (data: any) => {
+          console.log("Connected users", data)
+        });
+        ws?.on("user_joined", (data) => {
+          const user: accessTokenType = data.user;
+          const connectedUsers: [] = data.connectedUsers;
+          console.log("User joined", data)
+          if(user.userId.toString() !== userInformation?.userId) {
             toast({
               variant: "default",
               title: "User Joined",
-              description: `${data.name} has joined the project`,
+              description: `${user.name} has joined the project`,
             });
           }
         })
     
-        ws?.on("user_left", (data: accessTokenType) => {
-          if(data.userId.toString() !== userInformation?.userId) {
+        ws?.on("user_left", (data: any) => {
+          const user: accessTokenType = data.user;
+          const connectedUsers: [] = data.connectedUsers;
+          console.log("User left", user.name, connectedUsers)
+          if(user.userId.toString() !== userInformation?.userId) {
             toast({
               variant: "default",
               title: "User Left",
-              description: `${data.name} has left the project`,
+              description: `${user.name} has left the project`,
             });
           }
         });
