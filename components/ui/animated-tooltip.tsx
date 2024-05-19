@@ -14,7 +14,7 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 
 import Avatar from "boring-avatars";
 import { ScrollArea } from "./scroll-area";
-import { accessTokenType } from "../context/userprofile.context";
+import { accessTokenType, useProfileContext } from "../context/userprofile.context";
 type Props = {
   items: accessTokenType[];
 };
@@ -24,6 +24,7 @@ export const AnimatedTooltip = ({ items }: Props) => {
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
   const springConfig = { stiffness: 100, damping: 5 };
   const x = useMotionValue(0);
+  const { userInformation } = useProfileContext();
 
   const rotate = useSpring(
     useTransform(x, [-100, 100], [-45, 45]),
@@ -52,10 +53,10 @@ export const AnimatedTooltip = ({ items }: Props) => {
         <div
           className="mr-[-0.36rem]  relative group z-[9999]"
           key={item.name}
-          onMouseEnter={() => setHoveredIndex(Number(item.userId))}
+          onMouseEnter={() => setHoveredIndex(idx)}
           onMouseLeave={() => setHoveredIndex(null)}
         >
-          {hoveredIndex === Number(item.userId) && (
+          {hoveredIndex === idx && (
             <motion.div
               initial={{ opacity: 0, y: 30, scale: 0.6 }}
               animate={{
@@ -80,7 +81,7 @@ export const AnimatedTooltip = ({ items }: Props) => {
               <div className="absolute inset-x-10 z-30 w-[20%] -bottom-px bg-gradient-to-r from-transparent via-emerald-500 to-transparent h-2px " />
               <div className="absolute left-10 w-[40%] z-30 -bottom-px bg-gradient-to-r from-transparent via-sky-500 to-transparent h-2px " />
               <div className="font-bold text-white relative z-30 text-base">
-                {item.name}
+               {item.userId === userInformation?.userId ? "You" : item.name}
               </div>
               <div className="text-white text-xs">{item.role}</div>
             </motion.div>

@@ -199,7 +199,7 @@ export const NavbarForProject = (props: NavbarForProjectProps) => {
               variant: "default",
               title: `Success`,
               className: "text-white bg-green-900",
-              description: "The invitation code has been copied to the clipboard",
+              description: "The invitation code has been copied to the clipboard"
 
           });
       } catch (error) {

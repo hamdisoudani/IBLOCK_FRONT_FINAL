@@ -60,6 +60,610 @@ import JoinProjectModel from "@/components/dialog/join_project.model";
 import DisplayUserProjects from "@/components/display_user_projects";
 import WelcomeIllustration from "@/public/illustrations/welcome.svg"
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+const CreateClass = () => {
+  const { toast } = useToast();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+    // Create new personal project
+    const [createProjectError, setCreateProjectError] = useState<{
+      error: boolean;
+      message: string;
+    }>({
+      error: false,
+      message: "",
+    });
+    const handleSubmitNewClassRequest = async (
+      formData: InferType<typeof createClassRequestSchema>,
+      { resetForm }: { resetForm: any }
+    ) => {
+      await axiosInstance
+        .post("/rcc/create", {
+          className: formData.className,
+        })
+        .then((res) => {
+          console.log("res", res.data);
+          toast({
+            title: `${res.data.message}`,
+          });
+        })
+        .catch((e) => {
+          toast({
+            variant: "destructive",
+            title: `Error`,
+            description: `${e.response.data.message}`,
+          });
+        })
+        .finally(() => {
+          setIsDialogOpen(false);
+          resetForm();
+        });
+    };
+  
+  return(
+    <div >
+      <Dialog open={isDialogOpen}>
+        <DialogTrigger asChild>
+          <Button
+            variant={"outline"}
+            onClick={() => setIsDialogOpen(true)}
+          >
+            <Plus className="h-8 w-8 text-white stroke-1" />
+            <p className="text-xs font-light">Create Class</p>
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Create Class</DialogTitle>
+          </DialogHeader>
+          <Formik
+            initialValues={{
+              className: "",
+            }}
+            validationSchema={createClassRequestSchema}
+            onSubmit={handleSubmitNewClassRequest}
+            validateOnBlur
+            validateOnChange
+            validateOnMount
+          >
+            {({
+              values,
+              handleChange,
+              handleSubmit,
+              errors,
+              touched,
+              handleBlur,
+              isValid,
+              dirty,
+              isSubmitting,
+            }) => (
+              <form
+                onSubmit={handleSubmit}
+                className="space-y-4"
+              >
+                <div className="space-y-2">
+                  <Label htmlFor="className">
+                    Project name
+                  </Label>
+                  <Field
+                    type="text"
+                    className={cn(
+                      "border border-black dark:border-white w-full p-2 rounded",
+                      {
+                        "border-[2px] border-red-800 dark:border-red-800 bg-red-200":
+                          createProjectError.error,
+                      }
+                    )}
+                    value={values.className}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    name="className"
+                    placeholder="Enter your project name"
+                  />
+                  <ErrorMessage
+                    name="className"
+                    component="div"
+                    className="text-red-600"
+                  />
+                </div>
+
+                <DialogFooter className="flex justify-between sm:flex-wrap sm:justify-start md:flex-nowrap md:justify-center">
+                  <Button
+                    className="w-full mt-2 sm:mt-0 "
+                    type="submit"
+                    disabled={!isValid || isSubmitting}
+                  >
+                    <span
+                      className={cn({ hidden: isSubmitting })}
+                    >
+                      create
+                    </span>
+                    <svg
+                      aria-hidden="true"
+                      role="status"
+                      className={cn(
+                        "inline w-4 h-4 me-3 text-white animate-spin",
+                        { hidden: !isSubmitting }
+                      )}
+                      viewBox="0 0 100 101"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                        fill="#E5E7EB"
+                      />
+                      <path
+                        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                  </Button>
+                  <Button
+                    className="w-full "
+                    type="button"
+                    variant="secondary"
+                    onClick={() => setIsDialogOpen(false)}
+                  >
+                    Close
+                  </Button>
+                </DialogFooter>
+              </form>
+            )}
+          </Formik>
+        </DialogContent>
+      </Dialog>
+      
+    </div>
+  )
+
+}
+const JoinClass = () => {
+  return(
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant={ "outline" }>
+          <Plus className="h-8 w-8 text-white stroke-1" />
+          <p className="text-xs text-white font-light ml-[18px] ">
+            join class
+          </p>
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Join class</DialogTitle>
+          <DialogDescription>
+            Anyone who has this code will be able to Join
+            class.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex items-center space-x-2">
+          <div className="grid flex-1 gap-2">
+            <Label htmlFor="link" className="sr-only">
+              code
+            </Label>
+            <Input id="link" defaultValue="" />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button type="submit">Join</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+const CreateProject = () => {
+  const [ownedProjects, setOwnedProjects] = useState<UserProject[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [createProjectError, setCreateProjectError] = useState<{
+    error: boolean;
+    message: string;
+  }>({
+    error: false,
+    message: "",
+  });
+  const handleAddNewPersonalProject = async (
+    formData: InferType<typeof createProjectSchema>,
+    { resetForm }: { resetForm: any }
+  ) => {
+    await axiosInstance
+      .post("/projects/add", {
+        name: formData.projectName,
+        description: formData.projectDescription,
+      })
+      .then((res) => {
+        const Projects: UserProject[] = ownedProjects.concat(
+          res.data.projectDetails
+        );
+        setOwnedProjects(Projects);
+        useSuccessToast(`${res.data.message}`);
+      })
+      .catch((e) => {
+        useErrorToast("There was an error performing this action.");
+      })
+      .finally(() => {
+        setIsDialogOpen(false);
+        resetForm();
+      });
+  };
+  return(
+    <Dialog open={isDialogOpen}>
+      <DialogTrigger asChild>
+        <Button
+          variant={"default"}
+          onClick={() => setIsDialogOpen(true)}
+        > 
+          <Plus className="h-5 w-5 text-white stroke-1" />Create project
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Create project</DialogTitle>
+        </DialogHeader>
+        <Formik
+          initialValues={{
+            projectName: "",
+            projectDescription: "",
+          }}
+          validationSchema={createProjectSchema}
+          onSubmit={handleAddNewPersonalProject}
+          validateOnBlur
+          validateOnChange
+          validateOnMount
+        >
+          {({
+            values,
+            handleChange,
+            handleSubmit,
+            errors,
+            touched,
+            handleBlur,
+            isValid,
+            dirty,
+            isSubmitting,
+          }) => (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="projectName">
+                  Project name
+                </Label>
+                <Field
+                  type="text"
+                  className={cn(
+                    "border border-black dark:border-white w-full p-2 rounded",
+                    {
+                      "border-[2px] border-red-800 dark:border-red-800 bg-red-200":
+                        createProjectError.error,
+                    }
+                  )}
+                  value={values.projectName}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  name="projectName"
+                  placeholder="Enter your project name"
+                />
+                <ErrorMessage
+                  name="projectName"
+                  component="div"
+                  className="text-red-600"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="projectDescription">
+                  Project description
+                </Label>
+                <Field
+                  type="text"
+                  className={cn(
+                    "border border-black dark:border-white w-full p-2 rounded",
+                    {
+                      "border-[2px] border-red-800 dark:border-red-800 bg-red-200":
+                        createProjectError.error,
+                    }
+                  )}
+                  value={values.projectDescription}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  name="projectDescription"
+                  placeholder="Enter your porject description (optional)"
+                />
+                <ErrorMessage
+                  name="projectDescription"
+                  component="div"
+                  className="text-red-600"
+                />
+              </div>
+
+              <DialogFooter className="sm:justify-start  gap-2">
+                <Button
+                  className="w-full"
+                  type="submit"
+                  disabled={!isValid || isSubmitting}
+                >
+                  <span
+                    className={cn({
+                      hidden: isSubmitting,
+                    })}
+                  >
+                    Create Project
+                  </span>
+                  <svg
+                    aria-hidden="true"
+                    role="status"
+                    className={cn(
+                      "inline w-4 h-4 me-3 text-white animate-spin",
+                      {
+                        hidden: !isSubmitting,
+                      }
+                    )}
+                    viewBox="0 0 100 101"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                      fill="#E5E7EB"
+                    />
+                    <path
+                      d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => {
+                    setIsDialogOpen(false);
+                  }}
+                >
+                  Close
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </Formik>
+      </DialogContent>
+    </Dialog>
+  )
+}
+const CreateProjectForTeacher = () => {
+  const [ownedProjects, setOwnedProjects] = useState<UserProject[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [createProjectError, setCreateProjectError] = useState<{
+    error: boolean;
+    message: string;
+  }>({
+    error: false,
+    message: "",
+  });
+  const handleAddNewPersonalProject = async (
+    formData: InferType<typeof createProjectSchema>,
+    { resetForm }: { resetForm: any }
+  ) => {
+    await axiosInstance
+      .post("/projects/add", {
+        name: formData.projectName,
+        description: formData.projectDescription,
+      })
+      .then((res) => {
+        const Projects: UserProject[] = ownedProjects.concat(
+          res.data.projectDetails
+        );
+        setOwnedProjects(Projects);
+        useSuccessToast(`${res.data.message}`);
+      })
+      .catch((e) => {
+        useErrorToast("There was an error performing this action.");
+      })
+      .finally(() => {
+        setIsDialogOpen(false);
+        resetForm();
+      });
+  };
+  return(
+    <Dialog open={isDialogOpen}>
+      <DialogTrigger asChild>
+        <Button
+          variant={"default"}
+          onClick={() => setIsDialogOpen(true)}
+        > 
+          <Plus className="h-5 w-5 text-white stroke-1" />Create project
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Create project</DialogTitle>
+        </DialogHeader>
+        <Formik
+          initialValues={{
+            projectName: "",
+            projectDescription: "",
+          }}
+          validationSchema={createProjectSchema}
+          onSubmit={handleAddNewPersonalProject}
+          validateOnBlur
+          validateOnChange
+          validateOnMount
+        >
+          {({
+            values,
+            handleChange,
+            handleSubmit,
+            errors,
+            touched,
+            handleBlur,
+            isValid,
+            dirty,
+            isSubmitting,
+          }) => (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="projectName">
+                  Project name
+                </Label>
+                <Field
+                  type="text"
+                  className={cn(
+                    "border border-black dark:border-white w-full p-2 rounded",
+                    {
+                      "border-[2px] border-red-800 dark:border-red-800 bg-red-200":
+                        createProjectError.error,
+                    }
+                  )}
+                  value={values.projectName}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  name="projectName"
+                  placeholder="Enter your project name"
+                />
+                <ErrorMessage
+                  name="projectName"
+                  component="div"
+                  className="text-red-600"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="projectDescription">
+                  Project description
+                </Label>
+                <Field
+                  type="text"
+                  className={cn(
+                    "border border-black dark:border-white w-full p-2 rounded",
+                    {
+                      "border-[2px] border-red-800 dark:border-red-800 bg-red-200":
+                        createProjectError.error,
+                    }
+                  )}
+                  value={values.projectDescription}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  name="projectDescription"
+                  placeholder="Enter your porject description (optional)"
+                />
+                <ErrorMessage
+                  name="projectDescription"
+                  component="div"
+                  className="text-red-600"
+                />
+              </div>
+              <div className="items-top flex space-x-2 mt-2">
+              <Checkbox id="terms1" />
+              <div className="grid gap-1.5 leading-none">
+                <label
+                  htmlFor="terms1"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Collaborative Project
+                </label>
+                <p className="text-sm text-muted-foreground">
+                  Participate in our collaborative project to work with others in multiple groups.
+                </p>
+              </div>
+              </div>
+
+              <DialogFooter className="sm:justify-start  gap-2">
+                <Button
+                  className="w-full"
+                  type="submit"
+                  disabled={!isValid || isSubmitting}
+                >
+                  <span
+                    className={cn({
+                      hidden: isSubmitting,
+                    })}
+                  >
+                    Create Project
+                  </span>
+                  <svg
+                    aria-hidden="true"
+                    role="status"
+                    className={cn(
+                      "inline w-4 h-4 me-3 text-white animate-spin",
+                      {
+                        hidden: !isSubmitting,
+                      }
+                    )}
+                    viewBox="0 0 100 101"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                      fill="#E5E7EB"
+                    />
+                    <path
+                      d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => {
+                    setIsDialogOpen(false);
+                  }}
+                >
+                  Close
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </Formik>
+      </DialogContent>
+    </Dialog>
+  )
+}
+const JoinClassAndSchool = () => {
+  
+  const [joinedProjects, setJoinedProjects] = useState<UserProject[]>([]);
+ 
+  return(
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant={"default"}>
+          <CiMenuKebab />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56 dark:bg-current bg-black rounded-lg mr-3">
+        <Dialog>
+          <DialogTrigger className="w-full">
+            <span className="w-full inline-flex items-center gap-1 px-3 py-2 rounded-lg cursor-pointer hover:bg-gray-300">
+              <Plus className="h-6 w-6 text-black" />
+              <p className="text-sm font-medium text-black">
+                Join school
+              </p>
+            </span>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Type invitation code</DialogTitle>
+              <DialogDescription>
+                Anyone who has this code will be able to Join
+                school.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex items-center space-x-2">
+              <div className="grid flex-1 gap-2">
+                <Label htmlFor="link" className="sr-only">
+                  code
+                </Label>
+                <Input id="link" defaultValue="" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit">Join</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        <DropdownMenuSeparator />
+        <JoinProjectModel setJoinedProjects={setJoinedProjects} />
+      </DropdownMenuContent>
+    </DropdownMenu>
+    
+  )
+}
 
 type ProfileType = {
   _id: string;
@@ -162,17 +766,10 @@ const Dashboard = () => {
   const [ownedProjects, setOwnedProjects] = useState<UserProject[]>([]);
   const [joinedProjects, setJoinedProjects] = useState<UserProject[]>([]);
   const [classes, setClasses] = useState<UserClass[]>([]);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { toast } = useToast();
+  
+  
 
-  // Create new personal project
-  const [createProjectError, setCreateProjectError] = useState<{
-    error: boolean;
-    message: string;
-  }>({
-    error: false,
-    message: "",
-  });
+ 
 
   useEffect(() => {
     const getUSerProjects = async () => {
@@ -236,56 +833,7 @@ const Dashboard = () => {
     // Handle card click logic
   };
 
-  const handleAddNewPersonalProject = async (
-    formData: InferType<typeof createProjectSchema>,
-    { resetForm }: { resetForm: any }
-  ) => {
-    await axiosInstance
-      .post("/projects/add", {
-        name: formData.projectName,
-        description: formData.projectDescription,
-      })
-      .then((res) => {
-        const Projects: UserProject[] = ownedProjects.concat(
-          res.data.projectDetails
-        );
-        setOwnedProjects(Projects);
-        useSuccessToast(`${res.data.message}`);
-      })
-      .catch((e) => {
-        useErrorToast("There was an error performing this action.");
-      })
-      .finally(() => {
-        setIsDialogOpen(false);
-        resetForm();
-      });
-  };
-  const handleSubmitNewClassRequest = async (
-    formData: InferType<typeof createClassRequestSchema>,
-    { resetForm }: { resetForm: any }
-  ) => {
-    await axiosInstance
-      .post("/rcc/create", {
-        className: formData.className,
-      })
-      .then((res) => {
-        console.log("res", res.data);
-        toast({
-          title: `${res.data.message}`,
-        });
-      })
-      .catch((e) => {
-        toast({
-          variant: "destructive",
-          title: `Error`,
-          description: `${e.response.data.message}`,
-        });
-      })
-      .finally(() => {
-        setIsDialogOpen(false);
-        resetForm();
-      });
-  };
+ 
 
   const handleDeleteProject = async (project: UserProject) => {
     await axiosInstance
@@ -317,337 +865,37 @@ const Dashboard = () => {
               Dashboard
             </h1>
           </div>
-          <div className="flex lg:justify-end md:flex space-x-2 sm:mt-0 mt-1">
+          <div className="flex  lg:justify-end md:flex space-x-1 sm:mt-0 mt-1">
             <div>
-                <div className="space-x-2 flex items-center justify-end">
+                <div className="space-x-1 flex items-center justify-end">
                   {currentProfile?.type == "personal" && (
-                    <Dialog open={isDialogOpen}>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant={"default"}
-                          onClick={() => setIsDialogOpen(true)}
-                        >
-                          <Plus className="h-5 w-5 text-white stroke-1" />
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
-                          <DialogTitle>Create project</DialogTitle>
-                        </DialogHeader>
-                        <Formik
-                          initialValues={{
-                            projectName: "",
-                            projectDescription: "",
-                          }}
-                          validationSchema={createProjectSchema}
-                          onSubmit={handleAddNewPersonalProject}
-                          validateOnBlur
-                          validateOnChange
-                          validateOnMount
-                        >
-                          {({
-                            values,
-                            handleChange,
-                            handleSubmit,
-                            errors,
-                            touched,
-                            handleBlur,
-                            isValid,
-                            dirty,
-                            isSubmitting,
-                          }) => (
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                              <div className="space-y-2">
-                                <Label htmlFor="projectName">
-                                  Project name
-                                </Label>
-                                <Field
-                                  type="text"
-                                  className={cn(
-                                    "border border-black dark:border-white w-full p-2 rounded",
-                                    {
-                                      "border-[2px] border-red-800 dark:border-red-800 bg-red-200":
-                                        createProjectError.error,
-                                    }
-                                  )}
-                                  value={values.projectName}
-                                  onChange={handleChange}
-                                  onBlur={handleBlur}
-                                  name="projectName"
-                                  placeholder="Enter your project name"
-                                />
-                                <ErrorMessage
-                                  name="projectName"
-                                  component="div"
-                                  className="text-red-600"
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="projectDescription">
-                                  Project description
-                                </Label>
-                                <Field
-                                  type="text"
-                                  className={cn(
-                                    "border border-black dark:border-white w-full p-2 rounded",
-                                    {
-                                      "border-[2px] border-red-800 dark:border-red-800 bg-red-200":
-                                        createProjectError.error,
-                                    }
-                                  )}
-                                  value={values.projectDescription}
-                                  onChange={handleChange}
-                                  onBlur={handleBlur}
-                                  name="projectDescription"
-                                  placeholder="Enter your porject description (optional)"
-                                />
-                                <ErrorMessage
-                                  name="projectDescription"
-                                  component="div"
-                                  className="text-red-600"
-                                />
-                              </div>
-
-                              <DialogFooter className="sm:justify-start space-y-2 gap-2">
-                                <Button
-                                  className="w-full"
-                                  type="submit"
-                                  disabled={!isValid || isSubmitting}
-                                >
-                                  <span
-                                    className={cn({
-                                      hidden: isSubmitting,
-                                    })}
-                                  >
-                                    Create Project
-                                  </span>
-                                  <svg
-                                    aria-hidden="true"
-                                    role="status"
-                                    className={cn(
-                                      "inline w-4 h-4 me-3 text-white animate-spin",
-                                      {
-                                        hidden: !isSubmitting,
-                                      }
-                                    )}
-                                    viewBox="0 0 100 101"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                  >
-                                    <path
-                                      d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                                      fill="#E5E7EB"
-                                    />
-                                    <path
-                                      d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                                      fill="currentColor"
-                                    />
-                                  </svg>
-                                </Button>
-                                <Button
-                                  type="button"
-                                  variant="secondary"
-                                  onClick={() => {
-                                    setIsDialogOpen(false);
-                                  }}
-                                >
-                                  Close
-                                </Button>
-                              </DialogFooter>
-                            </form>
-                          )}
-                        </Formik>
-                      </DialogContent>
-                    </Dialog>
+                    <div className="flex flex-row gap-1">
+                      <CreateProject />
+                      <JoinClassAndSchool />
+                    </div>
+                    
                   )}
-
-                  {currentProfile?.type == "personal" && (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant={"default"}>
-                          <CiMenuKebab />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-56 dark:bg-current bg-black rounded-lg mr-3">
-                        <Dialog>
-                          <DialogTrigger className="w-full">
-                            <span className="w-full inline-flex items-center gap-1 px-3 py-2 rounded-lg cursor-pointer hover:bg-gray-300">
-                              <Plus className="h-6 w-6 text-black" />
-                              <p className="text-sm font-medium text-black">
-                                Join school
-                              </p>
-                            </span>
-                          </DialogTrigger>
-                          <DialogContent className="sm:max-w-md">
-                            <DialogHeader>
-                              <DialogTitle>Type invitation code</DialogTitle>
-                              <DialogDescription>
-                                Anyone who has this code will be able to Join
-                                school.
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="flex items-center space-x-2">
-                              <div className="grid flex-1 gap-2">
-                                <Label htmlFor="link" className="sr-only">
-                                  code
-                                </Label>
-                                <Input id="link" defaultValue="" />
-                              </div>
-                            </div>
-                            <DialogFooter>
-                              <Button type="submit">Join</Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
-                        <DropdownMenuSeparator />
-                        <JoinProjectModel setJoinedProjects={setJoinedProjects} />
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                  {currentProfile?.type == "school"  && userInformation?.role == "student" && (
+                    <div className="flex flex-row  gap-1">
+                      <CreateClass />
+                      <JoinClass />
+                    </div>
                   )}
-
-                  {currentProfile?.type == "school" && (
-                    <div className="space-x-1">
-                      <Dialog open={isDialogOpen}>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant={"default"}
-                            onClick={() => setIsDialogOpen(true)}
-                          >
-                            <Plus className="h-8 w-8 text-white stroke-1" />
-                            <p className="text-xs font-light">Create Class</p>
+                   {currentProfile?.type == "school"  && userInformation?.role == "teacher"  && (
+                      <div className="flex flex-row  gap-1">
+                        <CreateProjectForTeacher />
+                        <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant={  "secondary"  }>
+                            <CiMenuKebab />
                           </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle>Create Class</DialogTitle>
-                          </DialogHeader>
-                          <Formik
-                            initialValues={{
-                              className: "",
-                            }}
-                            validationSchema={createClassRequestSchema}
-                            onSubmit={handleSubmitNewClassRequest}
-                            validateOnBlur
-                            validateOnChange
-                            validateOnMount
-                          >
-                            {({
-                              values,
-                              handleChange,
-                              handleSubmit,
-                              errors,
-                              touched,
-                              handleBlur,
-                              isValid,
-                              dirty,
-                              isSubmitting,
-                            }) => (
-                              <form
-                                onSubmit={handleSubmit}
-                                className="space-y-4"
-                              >
-                                <div className="space-y-2">
-                                  <Label htmlFor="className">
-                                    Project name
-                                  </Label>
-                                  <Field
-                                    type="text"
-                                    className={cn(
-                                      "border border-black dark:border-white w-full p-2 rounded",
-                                      {
-                                        "border-[2px] border-red-800 dark:border-red-800 bg-red-200":
-                                          createProjectError.error,
-                                      }
-                                    )}
-                                    value={values.className}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    name="className"
-                                    placeholder="Enter your project name"
-                                  />
-                                  <ErrorMessage
-                                    name="className"
-                                    component="div"
-                                    className="text-red-600"
-                                  />
-                                </div>
-
-                                <DialogFooter className="flex justify-between sm:flex-wrap sm:justify-start md:flex-nowrap md:justify-center">
-                                  <Button
-                                    className="w-full mt-2 sm:mt-0 "
-                                    type="submit"
-                                    disabled={!isValid || isSubmitting}
-                                  >
-                                    <span
-                                      className={cn({ hidden: isSubmitting })}
-                                    >
-                                      create
-                                    </span>
-                                    <svg
-                                      aria-hidden="true"
-                                      role="status"
-                                      className={cn(
-                                        "inline w-4 h-4 me-3 text-white animate-spin",
-                                        { hidden: !isSubmitting }
-                                      )}
-                                      viewBox="0 0 100 101"
-                                      fill="none"
-                                      xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                      <path
-                                        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                                        fill="#E5E7EB"
-                                      />
-                                      <path
-                                        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                                        fill="currentColor"
-                                      />
-                                    </svg>
-                                  </Button>
-                                  <Button
-                                    className="w-full "
-                                    type="button"
-                                    variant="secondary"
-                                    onClick={() => setIsDialogOpen(false)}
-                                  >
-                                    Close
-                                  </Button>
-                                </DialogFooter>
-                              </form>
-                            )}
-                          </Formik>
-                        </DialogContent>
-                      </Dialog>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant={"default"}>
-                            <Plus className="h-8 w-8 text-white stroke-1" />
-                            <p className="text-xs text-white font-light">
-                              join class
-                            </p>
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-md">
-                          <DialogHeader>
-                            <DialogTitle>Join class</DialogTitle>
-                            <DialogDescription>
-                              Anyone who has this code will be able to Join
-                              class.
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="flex items-center space-x-2">
-                            <div className="grid flex-1 gap-2">
-                              <Label htmlFor="link" className="sr-only">
-                                code
-                              </Label>
-                              <Input id="link" defaultValue="" />
-                            </div>
-                          </div>
-                          <DialogFooter>
-                            <Button type="submit">Join</Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-auto dark:bg-current bg-black rounded-lg mr-3">
+                        <CreateClass />
+                        <JoinClass />
+                        </DropdownMenuContent>
+                        </DropdownMenu>
+                      
                     </div>
                   )}
                 </div>
@@ -691,7 +939,7 @@ const Dashboard = () => {
                   ? "Empty for now"
                   : ownedProjects.map((project) => (
                       
-                    <div key={project._id}>  {/* Responsive column spans */}
+                    <div key={project._id}>  
                     <DisplayUserProjects
                       project={project}
                       owned
@@ -702,6 +950,34 @@ const Dashboard = () => {
                 </CardContent>
             </Card>
           </section>
+          {currentProfile?.type == "school"  && userInformation?.role == "teacher"  && (
+            <section className="w-full py-5">
+            <Card className="m-0 mr-0">
+              <CardHeader className="py-2 px-3">
+                <CardTitle className="text-2xl">
+                Recent created Collaborative projects
+                </CardTitle>
+                <CardDescription>
+                Check out the latest Collaborative projects you've created. You can also manage them.
+                </CardDescription>
+              </CardHeader>
+                <CardContent className="flex flex-row flex-wrap gap-2 px-4 sm:gap-3">
+                {ownedProjects.length == 0
+                  ? "Empty for now"
+                  : ownedProjects.map((project) => (
+                      
+                    <div key={project._id}>  
+                    <DisplayUserProjects
+                      project={project}
+                      owned
+                      handleDeleteProject={handleDeleteProject}
+                    />
+                  </div>
+                  ))}
+                </CardContent>
+            </Card>
+          </section>
+          )}
           <section className="w-full py-5">
             <Card className="m-0 p-0">
               <CardHeader className="py-2 px-3">
