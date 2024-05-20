@@ -55,12 +55,17 @@ import {
 import { createClassRequestSchema } from "@/lib/schemas/create_class_schema";
 import { useToast } from "@/components/ui/use-toast";
 import { CardProjectUi } from "@/components/CardProjectUi";
-import { UserProject } from "@/lib/types/general.types";
+import { UserProject, joinedMetaProjectsType, ownedMetaProjectsType } from "@/lib/types/general.types";
 import JoinProjectModel from "@/components/dialog/join_project.model";
 import DisplayUserProjects from "@/components/display_user_projects";
 import WelcomeIllustration from "@/public/illustrations/welcome.svg"
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { NoContentAvailable } from "@/components/no_content_available";
+import DisplayTeacherOwnerMetaProjects from "@/components/display_teacher_meta_projects";
+import { createMetaProjectSchema } from "@/lib/schemas/create_meta_project.schema";
+import DisplayStudentJoinedMetaProjects from "@/components/meta-project/display_student_meta_projects";
 const CreateClass = () => {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -251,8 +256,8 @@ const JoinClass = () => {
     </Dialog>
   )
 }
-const CreateProject = () => {
-  const [ownedProjects, setOwnedProjects] = useState<UserProject[]>([]);
+const CreateProject = (props: {ownedProjects: UserProject[], setOwnedProjects: (ownedProjects: UserProject[]) => void}) => {
+  const {ownedProjects, setOwnedProjects} = props;
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [createProjectError, setCreateProjectError] = useState<{
     error: boolean;
@@ -426,8 +431,7 @@ const CreateProject = () => {
     </Dialog>
   )
 }
-const CreateProjectForTeacher = () => {
-  const [ownedProjects, setOwnedProjects] = useState<UserProject[]>([]);
+const CreateMetaProject = (props: {ownedMetaProjects: ownedMetaProjectsType[], setOwnedMetaProjects: (projects: ownedMetaProjectsType[]) => void}) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [createProjectError, setCreateProjectError] = useState<{
     error: boolean;
@@ -436,24 +440,55 @@ const CreateProjectForTeacher = () => {
     error: false,
     message: "",
   });
+  const {toast} = useToast();
   const handleAddNewPersonalProject = async (
-    formData: InferType<typeof createProjectSchema>,
+    formData: InferType<typeof createMetaProjectSchema>,
     { resetForm }: { resetForm: any }
   ) => {
     await axiosInstance
-      .post("/projects/add", {
-        name: formData.projectName,
-        description: formData.projectDescription,
+      .post("/mp", {
+        projectName: formData.metaProjectName,
+        projectDescription: formData.metaProjectDescription,
+        collaborative: formData.collaborative,
       })
       .then((res) => {
-        const Projects: UserProject[] = ownedProjects.concat(
-          res.data.projectDetails
+        props.ownedMetaProjects.concat(
+          res.data.metaProject
         );
-        setOwnedProjects(Projects);
-        useSuccessToast(`${res.data.message}`);
+        props.setOwnedMetaProjects(props.ownedMetaProjects);
+        toast({
+          title: "Success",
+          description: `${res.data.message}`
+        })
       })
       .catch((e) => {
-        useErrorToast("There was an error performing this action.");
+        if(e.response.data.message)
+          {
+            if(Array.isArray(e.response.data.message))
+            {
+              toast({
+                variant: "destructive",
+                title: `Error`,
+                description: `${e.response.data.message[0]}`,
+                duration: 4000
+              })
+            } else {
+              toast({
+                variant: "destructive",
+                title: `Error`,
+                description: `${e.response.data.message}`,
+                duration: 4000
+              })
+            }
+          } else  {
+            toast({
+              variant: "destructive",
+              title: `Error`,
+              description: `There was an error performing this action.`,
+              duration: 4000
+            })
+          }
+          
       })
       .finally(() => {
         setIsDialogOpen(false);
@@ -467,19 +502,20 @@ const CreateProjectForTeacher = () => {
           variant={"default"}
           onClick={() => setIsDialogOpen(true)}
         > 
-          <Plus className="h-5 w-5 text-white stroke-1" />Create project
+          <Plus className="h-5 w-5 text-white stroke-1" />Create meta project
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create project</DialogTitle>
+          <DialogTitle>Create new meta project</DialogTitle>
         </DialogHeader>
         <Formik
           initialValues={{
-            projectName: "",
-            projectDescription: "",
+            collaborative: false,
+            metaProjectName: "",
+            metaProjectDescription: "",
           }}
-          validationSchema={createProjectSchema}
+          validationSchema={createMetaProjectSchema}
           onSubmit={handleAddNewPersonalProject}
           validateOnBlur
           validateOnChange
@@ -492,14 +528,15 @@ const CreateProjectForTeacher = () => {
             errors,
             touched,
             handleBlur,
+            setFieldValue,
             isValid,
             dirty,
             isSubmitting,
           }) => (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="projectName">
-                  Project name
+                <Label htmlFor="metaProjectName">
+                  Meta project name
                 </Label>
                 <Field
                   type="text"
@@ -510,23 +547,24 @@ const CreateProjectForTeacher = () => {
                         createProjectError.error,
                     }
                   )}
-                  value={values.projectName}
+                  value={values.metaProjectName}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  name="projectName"
+                  name="metaProjectName"
                   placeholder="Enter your project name"
                 />
                 <ErrorMessage
-                  name="projectName"
+                  name="metaProjectName"
                   component="div"
                   className="text-red-600"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="projectDescription">
-                  Project description
+                <Label htmlFor="metaProjectDescription">
+                  Meta project description
                 </Label>
                 <Field
+                  as="textarea"
                   type="text"
                   className={cn(
                     "border border-black dark:border-white w-full p-2 rounded",
@@ -535,32 +573,52 @@ const CreateProjectForTeacher = () => {
                         createProjectError.error,
                     }
                   )}
-                  value={values.projectDescription}
+                  value={values.metaProjectDescription}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  name="projectDescription"
+                  name="metaProjectDescription"
                   placeholder="Enter your porject description (optional)"
                 />
                 <ErrorMessage
-                  name="projectDescription"
+                  name="metaProjectDescription"
                   component="div"
                   className="text-red-600"
                 />
               </div>
-              <div className="items-top flex space-x-2 mt-2">
-              <Checkbox id="terms1" />
-              <div className="grid gap-1.5 leading-none">
-                <label
-                  htmlFor="terms1"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Collaborative Project
-                </label>
-                <p className="text-sm text-muted-foreground">
-                  Participate in our collaborative project to work with others in multiple groups.
-                </p>
+              <div className="space-y-2">
+                <Label htmlFor="collaborative">
+                  <Field 
+                  type="checkbox"
+                  name="collaborative"
+                  render={({ field }: {field: any}) => (
+                    <div className="items-top flex space-x-2 mt-2">
+                        <Checkbox
+                        {...field}
+                        checked={values.collaborative}
+                        onClick={(e: MouseEvent) => {
+                          e.preventDefault();
+                          setFieldValue("collaborative", !values.collaborative)
+                        }}
+                        type="checkbox"
+                      />
+                        <div className="grid gap-1.5 leading-none">
+                          <label
+                            htmlFor="terms1"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            Collaborative
+                          </label>
+                          <p className="text-sm text-muted-foreground">
+                            If this field is checked means that this meta project will be collaborative, you can share collaborative codes with your students to join different groups.
+                          </p>
+                        </div>
+                      </div>
+                    
+                  )}
+                  />
+                </Label>
               </div>
-              </div>
+              
 
               <DialogFooter className="sm:justify-start  gap-2">
                 <Button
@@ -665,20 +723,7 @@ const JoinClassAndSchool = () => {
   )
 }
 
-type ProfileType = {
-  _id: string;
-  profileName: string;
-  createdAt: string;
-  updatedAt: string;
-  type: string;
-};
-
-interface Profiles {
-  selectedProfile: ProfileType;
-  availableProfiles: ProfileType[];
-}
-
-type UserClass = {
+type UserClassType = {
   createdAt: string;
   className: string;
   classOwner: string;
@@ -719,7 +764,7 @@ const LoadingButtonsSkeleton = () => {
     </div>
   );
 };
-function ClassesCard(classUser: UserClass) {
+function ClassesCard(classUser: UserClassType) {
   return (
     <><div className="relative p-4">
     <h3 className="text-xl font-semibold">{classUser.className}</h3>
@@ -761,11 +806,13 @@ function ClassesCard(classUser: UserClass) {
   );
 }
 const Dashboard = () => {
-  const { currentProfile, userInformation } = useProfileContext();
+  const { currentProfile, userInformation, isLoadingProfiles } = useProfileContext();
   const [loading, setLoading] = useState(true);
   const [ownedProjects, setOwnedProjects] = useState<UserProject[]>([]);
   const [joinedProjects, setJoinedProjects] = useState<UserProject[]>([]);
-  const [classes, setClasses] = useState<UserClass[]>([]);
+  const [ownedMetaProjects, setOwnedMetaProjects] = useState<ownedMetaProjectsType[]>([]); // This will store the teacher owned metaprojects
+  const [joinedMetaProjects, setJoinedMetaProjects] = useState<joinedMetaProjectsType[]>([]); // This will store the student joined metaprojects
+  const [classes, setClasses] = useState<UserClassType[]>([]);
   
   
 
@@ -819,19 +866,37 @@ const Dashboard = () => {
         });
     };
 
-    if (currentProfile?.type == "personal") {
-      getUSerProjects();
-    }
-    if (currentProfile?.type == "school") {
-      getUSerProjects();
-      getEnrolledClasses();
-      getClassCreationRequests();
+    const getMetaProjects = async () => {
+      setLoading(true);
+      await axiosInstance
+        .get("/mp")
+        .then((res) => {
+          console.log("res", res.data.joinedMetaProjects)
+          if(res.data.ownedMetaProjects) setOwnedMetaProjects(res.data.ownedMetaProjects);
+          if(res.data.joinedMetaProjects) setJoinedMetaProjects(res.data.joinedMetaProjects);
+        })
+        .catch((error) => {
+          console.log("error", error);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    };
+
+    if(!isLoadingProfiles) {
+      if (currentProfile?.type == "personal") {
+        getUSerProjects();
+      }
+      if (currentProfile?.type == "school") {
+        getUSerProjects();
+        getEnrolledClasses();
+        //getClassCreationRequests();
+        getMetaProjects();
+      }
     }
   }, [currentProfile]);
 
-  const handleCardClick = () => {
-    // Handle card click logic
-  };
+  
 
  
 
@@ -854,23 +919,21 @@ const Dashboard = () => {
       });
   };
 
-  if(loading) return <LoadingButtonsSkeleton />;
+  if(loading || isLoadingProfiles) return <LoadingButtonsSkeleton />;
 
   return (
     <>
       <div className="px-2">
         <div className="flex items-center mb-2">
           <div className="flex-1 sm:w-full">
-            <h1 className="text-bold dark:white font-bold text-2xl">
-              Dashboard
-            </h1>
+            &nbsp;
           </div>
           <div className="flex  lg:justify-end md:flex space-x-1 sm:mt-0 mt-1">
             <div>
                 <div className="space-x-1 flex items-center justify-end">
                   {currentProfile?.type == "personal" && (
                     <div className="flex flex-row gap-1">
-                      <CreateProject />
+                      <CreateProject ownedProjects={ownedProjects} setOwnedProjects={setOwnedProjects} />
                       <JoinClassAndSchool />
                     </div>
                     
@@ -883,7 +946,7 @@ const Dashboard = () => {
                   )}
                    {currentProfile?.type == "school"  && userInformation?.role == "teacher"  && (
                       <div className="flex flex-row  gap-1">
-                        <CreateProjectForTeacher />
+                        <CreateMetaProject ownedMetaProjects={ownedMetaProjects} setOwnedMetaProjects={setOwnedMetaProjects}/>
                         <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant={  "secondary"  }>
@@ -903,135 +966,203 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="flex flex-row flex-wrap my-5">
-          <div className="flex-1">
-            <div className="flex flex-row items-center gap-2">
-              
-              <div>
+        <div className="grid grid-cols-12 my-5 w-full max-w-2xl rounded p-1">
+            <div className="col-span-8 w-full flex items-center">
                 <h1 className="text-2xl font-bold">Welcome back, {userInformation?.name}</h1>
-              </div>
-              <div className="flex items-center gap-2 w-1/2">
+            </div>
+            <div className="col-span-4 flex justify-end gap-2 w-full">
                 <Image
                   src={WelcomeIllustration}
                   alt="Welcome illustration"
                   width={100}
                   height={100}
+                  loading="lazy"
+                  className="h-[100px] sm:w-1/2 w-full rounded-full object-cover"
                 />
               </div>
-            </div>
-          </div>
         </div>     
         
 
         <div className="max-w-screen">
-        <section className="w-full py-5">
-            <Card className="m-0 mr-0">
+          {/* Render the student or teacher personal projects */}
+          {currentProfile?.type == "personal" && (
+            
+            <Card className="m-0 mr-0 border-0 shadow-none bg-transparent">
               <CardHeader className="py-2 px-3">
                 <CardTitle className="text-2xl">
-                Recent created projects
+                  Browse your projects
                 </CardTitle>
                 <CardDescription>
-                Check out the latest projects you've created. You can also manage them.
+                  You can share your projects invitation codes with others to work on them together.
                 </CardDescription>
               </CardHeader>
-                <CardContent className="flex flex-row flex-wrap gap-2 px-4 sm:gap-3">
-                {ownedProjects.length == 0
-                  ? "Empty for now"
-                  : ownedProjects.map((project) => (
-                      
-                    <div key={project._id}>  
-                    <DisplayUserProjects
-                      project={project}
-                      owned
-                      handleDeleteProject={handleDeleteProject}
-                    />
-                  </div>
-                  ))}
-                </CardContent>
+                
+                  <ScrollArea className={cn(
+                    "sm:h-80 h-[450px] w-full rounded-md px-0",
+                    {
+                      "border h-auto": ownedProjects.length == 0,
+                    }
+                  )} >
+                  <CardContent className="flex flex-row flex-wrap sm:space-y-0 space-y-2 sm:px-4 sm:gap-3 px-1 sm:py-2 sm:justify-start justify-center">
+                    {ownedProjects.length == 0
+                      ? 
+                      (
+                        <div className="my-0 mx-auto flex items-center place-content-center place-items-center h-[300px]">
+                          <NoContentAvailable title="No project found" description="Create new project by clicking create new project" />
+                        </div>
+                      )
+                      : ownedProjects.map((project, index) => (
+                          
+                        <div key={project._id} className={
+                          cn({
+                            "sm:mt-0 mt-2": index == 0,
+                            "sm:mb-0 mb-1": index == ownedProjects.length - 1,
+                          })
+                        }>  
+                          <DisplayUserProjects
+                            project={project}
+                            owned
+                            handleDeleteProject={handleDeleteProject}
+                          />
+                        </div>
+                      ))}
+                      </CardContent>
+                  </ScrollArea>
+                
+                
             </Card>
-          </section>
+          
+          )}
+          
+          {/* Render the joined projects for the student or the teacher */}
+          {
+            currentProfile?.type == "personal" && (
+              <section className="w-full py-5">
+                <Card className="m-0 p-0 border-0 shadow-none bg-transparent">
+                  <CardHeader className="py-2 px-3">
+                    <CardTitle className="text-2xl">
+                      Explore your teammates projects
+                    </CardTitle>
+                    <CardDescription>
+                        Every joined project will be displayed here. You can work on them together.
+                    </CardDescription>
+                  </CardHeader>
+                  <ScrollArea className={cn(
+                    "sm:h-80 h-[450px] w-full rounded-md border-0 px-0",
+                    {
+                      "border h-auto": joinedProjects.length == 0,
+                    }
+                  )} >
+                    <CardContent className="flex flex-row flex-wrap space-y-2 sm:space-y-0 sm:py-2 sm:px-4 sm:gap-3 px-1 sm:justify-start justify-center">
+                    {joinedProjects.length == 0
+                      ? 
+                      (
+                        <div className="my-0 mx-auto flex items-center place-content-center place-items-center h-[300px]">
+                          <NoContentAvailable title="No project found" description="Joined projects will be displayed here" />
+                        </div>
+                      )
+                      : joinedProjects.map((project, index) => (
+                          
+                        <div key={project._id} className={
+                          cn({
+                            "sm:mt-0 mt-2": index == 0,
+                            "sm:mb-0 mb-1": index == ownedProjects.length - 1,
+                          })}>  {/* Responsive column spans */}
+                        <DisplayUserProjects
+                          project={project}
+                          handleDeleteProject={handleDeleteProject}
+                        />
+                      </div>
+                      ))}
+                    </CardContent>
+                    </ScrollArea>
+                </Card>
+              </section>
+            )
+          }
+
+          {/* Render the meta projects in school profile for teacher */}
           {currentProfile?.type == "school"  && userInformation?.role == "teacher"  && (
             <section className="w-full py-5">
-            <Card className="m-0 mr-0">
+            <Card className="m-0 mr-0 border-0 shadow-none bg-transparent">
               <CardHeader className="py-2 px-3">
                 <CardTitle className="text-2xl">
-                Recent created Collaborative projects
+                  Browse your meta projects
                 </CardTitle>
                 <CardDescription>
-                Check out the latest Collaborative projects you've created. You can also manage them.
+                  You can share your projects invitation codes with others to work on them together.
                 </CardDescription>
               </CardHeader>
-                <CardContent className="flex flex-row flex-wrap gap-2 px-4 sm:gap-3">
-                {ownedProjects.length == 0
-                  ? "Empty for now"
-                  : ownedProjects.map((project) => (
+                
+                  
+              <CardContent className="flex flex-row flex-wrap sm:space-y-0 space-y-2 sm:px-4 sm:gap-3 px-1 sm:py-2 sm:justify-start justify-center">
+                {ownedMetaProjects.length == 0
+                  ? 
+                  (
+                    <div className="my-0 mx-auto flex items-center place-content-center place-items-center h-[300px]">
+                      <NoContentAvailable title="No meta project found" description="All created meta projects will be displayed here" />
+                    </div>
+                  )
+                  : ownedMetaProjects.map((project, index) => (
                       
-                    <div key={project._id}>  
-                    <DisplayUserProjects
-                      project={project}
-                      owned
-                      handleDeleteProject={handleDeleteProject}
-                    />
-                  </div>
+                    <div key={project._id} className={
+                      cn({
+                        "sm:mt-0 mt-2": index == 0,
+                        "sm:mb-0 mb-1": index == ownedProjects.length - 1,
+                      })
+                    }>  
+                      <DisplayTeacherOwnerMetaProjects
+                        project={project}
+                      />
+                    </div>
                   ))}
-                </CardContent>
+                  </CardContent>
+                
+                
             </Card>
           </section>
           )}
-          <section className="w-full py-5">
-            <Card className="m-0 p-0">
+
+          {/* Render the meta projects in school profile for student */}
+          {currentProfile?.type == "school"  && userInformation?.role == "student"  && (
+            <section className="w-full py-5">
+            <Card className="m-0 mr-0 border-0 shadow-none bg-transparent">
               <CardHeader className="py-2 px-3">
                 <CardTitle className="text-2xl">
-                  Recent joined projects
+                  Browse your joined meta projects
                 </CardTitle>
                 <CardDescription>
-                    Check out the latest projects you've joined.
+                  Here are all joined meta projects.
                 </CardDescription>
               </CardHeader>
-                <CardContent className="flex flex-row flex-wrap gap-2 px-4 sm:gap-3">
-                {joinedProjects.length == 0
-                  ? "Empty for now"
-                  : joinedProjects.map((project) => (
+                
+                  
+              <CardContent className="flex flex-row flex-wrap sm:space-y-0 space-y-2 sm:px-4 sm:gap-3 px-1 sm:py-2 sm:justify-start justify-center">
+                {joinedMetaProjects.length == 0
+                  ? 
+                  (
+                    <div className="my-0 mx-auto flex items-center place-content-center place-items-center h-[300px]">
+                      <NoContentAvailable title="No meta project found" description="All created meta projects will be displayed here" />
+                    </div>
+                  )
+                  : joinedMetaProjects.map((project, index) => (
                       
-                    <div key={project._id}>  {/* Responsive column spans */}
-                    <DisplayUserProjects
-                      project={project}
-                      handleDeleteProject={handleDeleteProject}
-                    />
-                  </div>
+                    <div key={project._id} className={
+                      cn({
+                        "sm:mt-0 mt-2": index == 0,
+                        "sm:mb-0 mb-1": index == joinedMetaProjects.length - 1,
+                      })
+                    }>  
+                      <DisplayStudentJoinedMetaProjects
+                        project={project}
+                      />
+                    </div>
                   ))}
-                </CardContent>
+                  </CardContent>
+                
+                
             </Card>
           </section>
-          {currentProfile?.type == "school" && (
-            <section className="w-full py-12">
-              <div className="container grid gap-6 md:gap-8 px-4 md:px-6 max-w-xl mx-auto lg:max-w-none">
-                <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8">
-                  <div className="grid gap-1">
-                    <h1 className="text-2xl font-bold tracking-tight">
-                      Classes
-                    </h1>
-                    <p className="text-gray-500 dark:text-gray-400">
-                      Check out our latest classes and see what we've been
-                      working on.
-                    </p>
-                  </div>
-                </div>
-                <div className="space-y-2 h-[500px] lg:space-x-3 lg:flex block xl:flex ">
-                  <div className="border-black grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {classes.map((classUser) => (
-                      <Card
-                        key={classUser._id}
-                        className="border-black rounded-lg col-span-1 space-x-2 mx-1 gap-2 z-50 lg:h-[240px] lg:w-[200px] md:h-[350px] md:w-[350px]"
-                        onClick={handleCardClick}
-                      >
-                        {ClassesCard(classUser)}
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </section>
           )}
         </div>
       </div>

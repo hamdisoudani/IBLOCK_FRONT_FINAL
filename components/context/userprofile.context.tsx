@@ -20,12 +20,14 @@ type ProfileContextType = {
   currentProfile: Profile | null;
   setCurrentProfile: (profile: Profile) => void;
   userInformation: accessTokenType | null;
+  isLoadingProfiles: boolean;
 };
 
 const ProfileContext = createContext<ProfileContextType>({
   currentProfile: null,
   setCurrentProfile: () => {},
   userInformation: null,
+  isLoadingProfiles: true
 });
 
 export const useProfileContext = () => useContext(ProfileContext);
@@ -33,7 +35,7 @@ export const useProfileContext = () => useContext(ProfileContext);
 export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [currentProfile, setCurrentProfile] = useState<Profile | null>(null);
     const [userInformation, setUserInformation] = useState<accessTokenType | null>(null);
-    const [isLoadins, setIsLoading] = useState<boolean>(true);
+    const [isLoadingProfiles, setIsLoading] = useState<boolean>(true);
     
     useEffect(() => {
         const fetchDataFromApi = async () => {
@@ -52,9 +54,9 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
         };
         fetchDataFromApi();
     }, []);
-    if(isLoadins) return (<div>Loading...</div>)
+    if(isLoadingProfiles) return (<div>Loading...</div>)
     return (
-      <ProfileContext.Provider value={{ currentProfile, setCurrentProfile, userInformation }}>
+      <ProfileContext.Provider value={{ currentProfile, setCurrentProfile, userInformation, isLoadingProfiles }}>
         {children}
       </ProfileContext.Provider>
     );
