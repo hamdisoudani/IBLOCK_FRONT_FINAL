@@ -24,12 +24,11 @@ export interface joinedMetaProjectsType {
     _id: string;
     projectName: string;
     projectDescription: string;
-    members?: (MembersEntity)[] | null;
     owner: MembersEntity;
     collaborative: "Yes" | "No";
     createdAt: string;
+    numberOfMembers: number;
 }
-
 
 export interface MembersEntity {
     _id: string;

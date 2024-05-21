@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -53,7 +53,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { createClassRequestSchema } from "@/lib/schemas/create_class_schema";
-import { useToast } from "@/components/ui/use-toast";
+import { toast, useToast } from "@/components/ui/use-toast";
 import { CardProjectUi } from "@/components/CardProjectUi";
 import { UserProject, joinedMetaProjectsType, ownedMetaProjectsType } from "@/lib/types/general.types";
 import JoinProjectModel from "@/components/dialog/join_project.model";
@@ -66,7 +66,9 @@ import { NoContentAvailable } from "@/components/no_content_available";
 import DisplayTeacherOwnerMetaProjects from "@/components/display_teacher_meta_projects";
 import { createMetaProjectSchema } from "@/lib/schemas/create_meta_project.schema";
 import DisplayStudentJoinedMetaProjects from "@/components/meta-project/display_student_meta_projects";
-const CreateClass = () => {
+import { user } from "@nextui-org/react";
+import { joinProjectShema } from "@/lib/schemas/manage_project/join_project.schema";
+const JoinMPChildProject = () => {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
     // Create new personal project
@@ -78,15 +80,14 @@ const CreateClass = () => {
       message: "",
     });
     const handleSubmitNewClassRequest = async (
-      formData: InferType<typeof createClassRequestSchema>,
+      formData: InferType<typeof joinProjectShema>,
       { resetForm }: { resetForm: any }
     ) => {
       await axiosInstance
-        .post("/rcc/create", {
-          className: formData.className,
+        .post("/mp/join", {
+          invitationCode: formData.invitationCode,
         })
         .then((res) => {
-          console.log("res", res.data);
           toast({
             title: `${res.data.message}`,
           });
@@ -109,22 +110,20 @@ const CreateClass = () => {
       <Dialog open={isDialogOpen}>
         <DialogTrigger asChild>
           <Button
-            variant={"outline"}
             onClick={() => setIsDialogOpen(true)}
           >
-            <Plus className="h-8 w-8 text-white stroke-1" />
-            <p className="text-xs font-light">Create Class</p>
+            <Plus className="h-5 w-5 text-white stroke-1" />
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Create Class</DialogTitle>
+            <DialogTitle>Join project</DialogTitle>
           </DialogHeader>
           <Formik
             initialValues={{
-              className: "",
+              invitationCode: "",
             }}
-            validationSchema={createClassRequestSchema}
+            validationSchema={joinProjectShema}
             onSubmit={handleSubmitNewClassRequest}
             validateOnBlur
             validateOnChange
@@ -146,8 +145,8 @@ const CreateClass = () => {
                 className="space-y-4"
               >
                 <div className="space-y-2">
-                  <Label htmlFor="className">
-                    Project name
+                  <Label htmlFor="invitationCode">
+                    Invitation Code
                   </Label>
                   <Field
                     type="text"
@@ -158,14 +157,14 @@ const CreateClass = () => {
                           createProjectError.error,
                       }
                     )}
-                    value={values.className}
+                    value={values.invitationCode}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    name="className"
-                    placeholder="Enter your project name"
+                    name="invitationCode"
+                    placeholder="Enter your invitation code"
                   />
                   <ErrorMessage
-                    name="className"
+                    name="invitationCode"
                     component="div"
                     className="text-red-600"
                   />
@@ -180,7 +179,7 @@ const CreateClass = () => {
                     <span
                       className={cn({ hidden: isSubmitting })}
                     >
-                      create
+                      Join
                     </span>
                     <svg
                       aria-hidden="true"
@@ -431,248 +430,7 @@ const CreateProject = (props: {ownedProjects: UserProject[], setOwnedProjects: (
     </Dialog>
   )
 }
-const CreateMetaProject = (props: {ownedMetaProjects: ownedMetaProjectsType[], setOwnedMetaProjects: (projects: ownedMetaProjectsType[]) => void}) => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [createProjectError, setCreateProjectError] = useState<{
-    error: boolean;
-    message: string;
-  }>({
-    error: false,
-    message: "",
-  });
-  const {toast} = useToast();
-  const handleAddNewPersonalProject = async (
-    formData: InferType<typeof createMetaProjectSchema>,
-    { resetForm }: { resetForm: any }
-  ) => {
-    await axiosInstance
-      .post("/mp", {
-        projectName: formData.metaProjectName,
-        projectDescription: formData.metaProjectDescription,
-        collaborative: formData.collaborative,
-      })
-      .then((res) => {
-        props.ownedMetaProjects.concat(
-          res.data.metaProject
-        );
-        props.setOwnedMetaProjects(props.ownedMetaProjects);
-        toast({
-          title: "Success",
-          description: `${res.data.message}`
-        })
-      })
-      .catch((e) => {
-        if(e.response.data.message)
-          {
-            if(Array.isArray(e.response.data.message))
-            {
-              toast({
-                variant: "destructive",
-                title: `Error`,
-                description: `${e.response.data.message[0]}`,
-                duration: 4000
-              })
-            } else {
-              toast({
-                variant: "destructive",
-                title: `Error`,
-                description: `${e.response.data.message}`,
-                duration: 4000
-              })
-            }
-          } else  {
-            toast({
-              variant: "destructive",
-              title: `Error`,
-              description: `There was an error performing this action.`,
-              duration: 4000
-            })
-          }
-          
-      })
-      .finally(() => {
-        setIsDialogOpen(false);
-        resetForm();
-      });
-  };
-  return(
-    <Dialog open={isDialogOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant={"default"}
-          onClick={() => setIsDialogOpen(true)}
-        > 
-          <Plus className="h-5 w-5 text-white stroke-1" />Create meta project
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Create new meta project</DialogTitle>
-        </DialogHeader>
-        <Formik
-          initialValues={{
-            collaborative: false,
-            metaProjectName: "",
-            metaProjectDescription: "",
-          }}
-          validationSchema={createMetaProjectSchema}
-          onSubmit={handleAddNewPersonalProject}
-          validateOnBlur
-          validateOnChange
-          validateOnMount
-        >
-          {({
-            values,
-            handleChange,
-            handleSubmit,
-            errors,
-            touched,
-            handleBlur,
-            setFieldValue,
-            isValid,
-            dirty,
-            isSubmitting,
-          }) => (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="metaProjectName">
-                  Meta project name
-                </Label>
-                <Field
-                  type="text"
-                  className={cn(
-                    "border border-black dark:border-white w-full p-2 rounded",
-                    {
-                      "border-[2px] border-red-800 dark:border-red-800 bg-red-200":
-                        createProjectError.error,
-                    }
-                  )}
-                  value={values.metaProjectName}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  name="metaProjectName"
-                  placeholder="Enter your project name"
-                />
-                <ErrorMessage
-                  name="metaProjectName"
-                  component="div"
-                  className="text-red-600"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="metaProjectDescription">
-                  Meta project description
-                </Label>
-                <Field
-                  as="textarea"
-                  type="text"
-                  className={cn(
-                    "border border-black dark:border-white w-full p-2 rounded",
-                    {
-                      "border-[2px] border-red-800 dark:border-red-800 bg-red-200":
-                        createProjectError.error,
-                    }
-                  )}
-                  value={values.metaProjectDescription}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  name="metaProjectDescription"
-                  placeholder="Enter your porject description (optional)"
-                />
-                <ErrorMessage
-                  name="metaProjectDescription"
-                  component="div"
-                  className="text-red-600"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="collaborative">
-                  <Field 
-                  type="checkbox"
-                  name="collaborative"
-                  render={({ field }: {field: any}) => (
-                    <div className="items-top flex space-x-2 mt-2">
-                        <Checkbox
-                        {...field}
-                        checked={values.collaborative}
-                        onClick={(e: MouseEvent) => {
-                          e.preventDefault();
-                          setFieldValue("collaborative", !values.collaborative)
-                        }}
-                        type="checkbox"
-                      />
-                        <div className="grid gap-1.5 leading-none">
-                          <label
-                            htmlFor="terms1"
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                          >
-                            Collaborative
-                          </label>
-                          <p className="text-sm text-muted-foreground">
-                            If this field is checked means that this meta project will be collaborative, you can share collaborative codes with your students to join different groups.
-                          </p>
-                        </div>
-                      </div>
-                    
-                  )}
-                  />
-                </Label>
-              </div>
-              
 
-              <DialogFooter className="sm:justify-start  gap-2">
-                <Button
-                  className="w-full"
-                  type="submit"
-                  disabled={!isValid || isSubmitting}
-                >
-                  <span
-                    className={cn({
-                      hidden: isSubmitting,
-                    })}
-                  >
-                    Create Project
-                  </span>
-                  <svg
-                    aria-hidden="true"
-                    role="status"
-                    className={cn(
-                      "inline w-4 h-4 me-3 text-white animate-spin",
-                      {
-                        hidden: !isSubmitting,
-                      }
-                    )}
-                    viewBox="0 0 100 101"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                      fill="#E5E7EB"
-                    />
-                    <path
-                      d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                      fill="currentColor"
-                    />
-                  </svg>
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => {
-                    setIsDialogOpen(false);
-                  }}
-                >
-                  Close
-                </Button>
-              </DialogFooter>
-            </form>
-          )}
-        </Formik>
-      </DialogContent>
-    </Dialog>
-  )
-}
 const JoinClassAndSchool = () => {
   
   const [joinedProjects, setJoinedProjects] = useState<UserProject[]>([]);
@@ -811,11 +569,284 @@ const Dashboard = () => {
   const [ownedProjects, setOwnedProjects] = useState<UserProject[]>([]);
   const [joinedProjects, setJoinedProjects] = useState<UserProject[]>([]);
   const [ownedMetaProjects, setOwnedMetaProjects] = useState<ownedMetaProjectsType[]>([]); // This will store the teacher owned metaprojects
-  const [joinedMetaProjects, setJoinedMetaProjects] = useState<joinedMetaProjectsType[]>([]); // This will store the student joined metaprojects
+  const [joinedMPChilProjects, setJoinedMpChildProjects] = useState<joinedMetaProjectsType[]>([]); // This will store the student joined metaprojects
   const [classes, setClasses] = useState<UserClassType[]>([]);
   
   
+  const CreateMetaProject = (props: {ownedMetaProjects: ownedMetaProjectsType[], setOwnedMetaProjects: Dispatch<SetStateAction<ownedMetaProjectsType[]>>}) => {
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [createProjectError, setCreateProjectError] = useState<{
+      error: boolean;
+      message: string;
+    }>({
+      error: false,
+      message: "",
+    });
+    const {toast} = useToast();
+    const handleAddNewPersonalProject = async (
+      formData: InferType<typeof createMetaProjectSchema>,
+      { resetForm }: { resetForm: any }
+    ) => {
+      await axiosInstance
+        .post("/mp", {
+          projectName: formData.metaProjectName,
+          projectDescription: formData.metaProjectDescription,
+          collaborative: formData.collaborative,
+        })
+        .then((res) => {
+          const modifiedData:ownedMetaProjectsType = res.data.metaProject;
+          const projects: ownedMetaProjectsType[] = props.ownedMetaProjects.concat(modifiedData);
+          props.setOwnedMetaProjects(projects);
+          toast({
+            title: "Success",
+            description: `${res.data.message}`
+          })
+        })
+        .catch((e) => {
+          if(e.response.data.message)
+            {
+              if(Array.isArray(e.response.data.message))
+              {
+                toast({
+                  variant: "destructive",
+                  title: `Error`,
+                  description: `${e.response.data.message[0]}`,
+                  duration: 4000
+                })
+              } else {
+                toast({
+                  variant: "destructive",
+                  title: `Error`,
+                  description: `${e.response.data.message}`,
+                  duration: 4000
+                })
+              }
+            } else  {
+              toast({
+                variant: "destructive",
+                title: `Error`,
+                description: `There was an error performing this action.`,
+                duration: 4000
+              })
+            }
+            
+        })
+        .finally(() => {
+          setIsDialogOpen(false);
+          resetForm();
+        });
+    };
+    return(
+      <Dialog open={isDialogOpen}>
+        <DialogTrigger asChild>
+          <Button
+            variant={"default"}
+            onClick={() => setIsDialogOpen(true)}
+          > 
+            <Plus className="h-5 w-5 text-white stroke-1" />Create meta project
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Create new meta project</DialogTitle>
+          </DialogHeader>
+          <Formik
+            initialValues={{
+              collaborative: false,
+              metaProjectName: "",
+              metaProjectDescription: "",
+            }}
+            validationSchema={createMetaProjectSchema}
+            onSubmit={handleAddNewPersonalProject}
+            validateOnBlur
+            validateOnChange
+            validateOnMount
+          >
+            {({
+              values,
+              handleChange,
+              handleSubmit,
+              errors,
+              touched,
+              handleBlur,
+              setFieldValue,
+              isValid,
+              dirty,
+              isSubmitting,
+            }) => (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="metaProjectName">
+                    Meta project name
+                  </Label>
+                  <Field
+                    type="text"
+                    className={cn(
+                      "border border-black dark:border-white w-full p-2 rounded",
+                      {
+                        "border-[2px] border-red-800 dark:border-red-800 bg-red-200":
+                          createProjectError.error,
+                      }
+                    )}
+                    value={values.metaProjectName}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    name="metaProjectName"
+                    placeholder="Enter your project name"
+                  />
+                  <ErrorMessage
+                    name="metaProjectName"
+                    component="div"
+                    className="text-red-600"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="metaProjectDescription">
+                    Meta project description
+                  </Label>
+                  <Field
+                    as="textarea"
+                    type="text"
+                    className={cn(
+                      "border border-black dark:border-white w-full p-2 rounded",
+                      {
+                        "border-[2px] border-red-800 dark:border-red-800 bg-red-200":
+                          createProjectError.error,
+                      }
+                    )}
+                    value={values.metaProjectDescription}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    name="metaProjectDescription"
+                    placeholder="Enter your porject description (optional)"
+                  />
+                  <ErrorMessage
+                    name="metaProjectDescription"
+                    component="div"
+                    className="text-red-600"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="collaborative">
+                    <Field 
+                    type="checkbox"
+                    name="collaborative"
+                    render={({ field }: {field: any}) => (
+                      <div className="items-top flex space-x-2 mt-2">
+                          <Checkbox
+                          {...field}
+                          checked={values.collaborative}
+                          onClick={(e: MouseEvent) => {
+                            e.preventDefault();
+                            setFieldValue("collaborative", !values.collaborative)
+                          }}
+                          type="checkbox"
+                        />
+                          <div className="grid gap-1.5 leading-none">
+                            <label
+                              htmlFor="terms1"
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                              Collaborative
+                            </label>
+                            <p className="text-sm text-muted-foreground">
+                              If this field is checked means that this meta project will be collaborative, you can share collaborative codes with your students to join different groups.
+                            </p>
+                          </div>
+                        </div>
+                      
+                    )}
+                    />
+                  </Label>
+                </div>
+                
+  
+                <DialogFooter className="sm:justify-start  gap-2">
+                  <Button
+                    className="w-full"
+                    type="submit"
+                    disabled={!isValid || isSubmitting}
+                  >
+                    <span
+                      className={cn({
+                        hidden: isSubmitting,
+                      })}
+                    >
+                      Create Project
+                    </span>
+                    <svg
+                      aria-hidden="true"
+                      role="status"
+                      className={cn(
+                        "inline w-4 h-4 me-3 text-white animate-spin",
+                        {
+                          hidden: !isSubmitting,
+                        }
+                      )}
+                      viewBox="0 0 100 101"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                        fill="#E5E7EB"
+                      />
+                      <path
+                        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => {
+                      setIsDialogOpen(false);
+                    }}
+                  >
+                    Close
+                  </Button>
+                </DialogFooter>
+              </form>
+            )}
+          </Formik>
+        </DialogContent>
+      </Dialog>
+    )
+  }
 
+  const handleDeleteMetaProject = async (project: ownedMetaProjectsType) => {
+    try {
+      const response = await axiosInstance.delete(`/mp/${project._id}`)
+      if(response.status ===200)
+        {
+          toast({
+            title: "Success",
+            description: `${project.projectName} has been deleted successfully`,
+            variant: "default",
+            duration: 5000
+          });
+          const metaprojects: ownedMetaProjectsType[] = ownedMetaProjects.filter((metaProject) => {
+            return metaProject._id != project._id;
+          });
+          setOwnedMetaProjects(metaprojects);
+        }
+      else 
+        toast({
+          title: "An error occurred.",
+          description: "Unable to delete meta project. Please try again later.",
+          variant: "destructive",
+          duration: 5000
+        });
+    } catch (error) {
+      toast({
+        title: "An error occurred.",
+        description: "Unable to delete meta project. Please try again later.",
+        variant: "destructive",
+        duration: 5000
+      });
+    }
+  }
  
 
   useEffect(() => {
@@ -873,7 +904,7 @@ const Dashboard = () => {
         .then((res) => {
           console.log("res", res.data.joinedMetaProjects)
           if(res.data.ownedMetaProjects) setOwnedMetaProjects(res.data.ownedMetaProjects);
-          if(res.data.joinedMetaProjects) setJoinedMetaProjects(res.data.joinedMetaProjects);
+          //if(res.data.joinedMetaProjects) setJoinedMpChildProjects(res.data.joinedMetaProjects);
         })
         .catch((error) => {
           console.log("error", error);
@@ -882,16 +913,36 @@ const Dashboard = () => {
           setLoading(false);
         });
     };
+    const getJoinedJoinedProjectsForThisSchoolProfile = async () => {
+      setLoading(true);
+      await axiosInstance
+        .get("/mp/joined-projects")
+        .then((res) => {
+          console.log("res", res.data )
+          if (res.data) setJoinedMpChildProjects(res.data)
+        })
+        .catch((error) => {
+          console.log("error", error);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
 
     if(!isLoadingProfiles) {
       if (currentProfile?.type == "personal") {
         getUSerProjects();
       }
       if (currentProfile?.type == "school") {
-        getUSerProjects();
-        getEnrolledClasses();
+        //getUSerProjects();
+        //getEnrolledClasses();
         //getClassCreationRequests();
-        getMetaProjects();
+        if(userInformation?.role == "student") {
+          getJoinedJoinedProjectsForThisSchoolProfile();
+        }
+        if(userInformation?.role == "teacher") {
+          getMetaProjects();
+        }
       }
     }
   }, [currentProfile]);
@@ -938,27 +989,10 @@ const Dashboard = () => {
                     </div>
                     
                   )}
-                  {currentProfile?.type == "school"  && userInformation?.role == "student" && (
-                    <div className="flex flex-row  gap-1">
-                      <CreateClass />
-                      <JoinClass />
-                    </div>
-                  )}
                    {currentProfile?.type == "school"  && userInformation?.role == "teacher"  && (
                       <div className="flex flex-row  gap-1">
                         <CreateMetaProject ownedMetaProjects={ownedMetaProjects} setOwnedMetaProjects={setOwnedMetaProjects}/>
-                        <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant={  "secondary"  }>
-                            <CiMenuKebab />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-auto dark:bg-current bg-black rounded-lg mr-3">
-                        <CreateClass />
-                        <JoinClass />
-                        </DropdownMenuContent>
-                        </DropdownMenu>
-                      
+                        
                     </div>
                   )}
                 </div>
@@ -1113,6 +1147,7 @@ const Dashboard = () => {
                     }>  
                       <DisplayTeacherOwnerMetaProjects
                         project={project}
+                        handleDeleteMetaProject={handleDeleteMetaProject}
                       />
                     </div>
                   ))}
@@ -1125,11 +1160,17 @@ const Dashboard = () => {
 
           {/* Render the meta projects in school profile for student */}
           {currentProfile?.type == "school"  && userInformation?.role == "student"  && (
+            
+            
             <section className="w-full py-5">
+              
             <Card className="m-0 mr-0 border-0 shadow-none bg-transparent">
               <CardHeader className="py-2 px-3">
-                <CardTitle className="text-2xl">
+                <CardTitle className="text-2xl flex justify-between">
                   Browse your joined meta projects
+                  <div className="flex flex-row  gap-1">
+              <JoinMPChildProject />
+            </div>
                 </CardTitle>
                 <CardDescription>
                   Here are all joined meta projects.
@@ -1138,19 +1179,19 @@ const Dashboard = () => {
                 
                   
               <CardContent className="flex flex-row flex-wrap sm:space-y-0 space-y-2 sm:px-4 sm:gap-3 px-1 sm:py-2 sm:justify-start justify-center">
-                {joinedMetaProjects.length == 0
+                {joinedMPChilProjects.length == 0
                   ? 
                   (
                     <div className="my-0 mx-auto flex items-center place-content-center place-items-center h-[300px]">
                       <NoContentAvailable title="No meta project found" description="All created meta projects will be displayed here" />
                     </div>
                   )
-                  : joinedMetaProjects.map((project, index) => (
+                  : joinedMPChilProjects.map((project, index) => (
                       
                     <div key={project._id} className={
                       cn({
                         "sm:mt-0 mt-2": index == 0,
-                        "sm:mb-0 mb-1": index == joinedMetaProjects.length - 1,
+                        "sm:mb-0 mb-1": index == joinedMPChilProjects.length - 1,
                       })
                     }>  
                       <DisplayStudentJoinedMetaProjects

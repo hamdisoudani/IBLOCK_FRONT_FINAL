@@ -13,7 +13,7 @@ import { NoContentAvailable } from "../no_content_available";
 import DisplayMetaProjectCollaborationCodeInformations from "./mp_collaborative_code";
 import { ErrorMessage, Field, Formik } from "formik";
 import { InferType } from "yup";
-import { useToast } from "../ui/use-toast";
+import { toast, useToast } from "../ui/use-toast";
 import { useState } from "react";
 import { teacherCreateNewCollaborativeMetaProjectCodeSchema } from "@/lib/schemas/teacher_create_collaborative_code";
 import axiosInstance from "@/plugins/axios";
@@ -42,7 +42,7 @@ const AddNewCollaborativeCodeComponent = (props: {metaProject: MetaProject, setM
         error: false,
         message: "",
       });
-      const handleSubmitNewClassRequest = async (
+      const handleAddNewCollaborativeCode = async (
         formData: InferType<typeof teacherCreateNewCollaborativeMetaProjectCodeSchema>,
         { resetForm }: { resetForm: any }
       ) => {
@@ -53,8 +53,9 @@ const AddNewCollaborativeCodeComponent = (props: {metaProject: MetaProject, setM
             projectId: props.metaProject._id,
           })
           .then((res) => {
-            props.metaProject.projectCodes?.push(res.data.code);
-            props.setMetaProject(props.metaProject);
+            const newMetaProject: MetaProject = { ...props.metaProject };
+            newMetaProject.projectCodes?.push(res.data.code);
+            props.setMetaProject(newMetaProject);
             toast({
               title: "Success",
               description: `${res.data.message}`,
@@ -80,10 +81,9 @@ const AddNewCollaborativeCodeComponent = (props: {metaProject: MetaProject, setM
         <Dialog open={isDialogOpen}>
           <DialogTrigger asChild>
             <Button
-              variant={"outline"}
               onClick={() => setIsDialogOpen(true)}
             >
-              <Plus className="h-8 w-8 text-white stroke-1" />
+              <Plus className="h-5 w-5 text-white stroke-1" />
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
@@ -97,7 +97,7 @@ const AddNewCollaborativeCodeComponent = (props: {metaProject: MetaProject, setM
                 childProjectDescription: "",
               }}
               validationSchema={teacherCreateNewCollaborativeMetaProjectCodeSchema}
-              onSubmit={handleSubmitNewClassRequest}
+              onSubmit={handleAddNewCollaborativeCode}
               validateOnBlur
               validateOnChange
               validateOnMount
@@ -277,6 +277,31 @@ export const DisplayMetaProjectInformationsAsOwner = (props: {metaProject: MetaP
           enableHiding: false,
         },
     ]
+    const handleDeleteCollaborativeCode = async (codeId: string) => {
+        await axiosInstance
+          .delete(`/mp/collaborative-code/${codeId}`)
+          .then((res) => {
+            const newMetaProject: MetaProject = { ...props.metaProject };
+            newMetaProject.projectCodes = newMetaProject.projectCodes?.filter(
+              (code) => code._id !== codeId
+            );
+            props.setMetaProject(newMetaProject);
+            toast({
+              title: "Success",
+              description: `${res.data.message}`,
+              duration: 5000,
+            });
+          })
+          .catch((e) => {
+            toast({
+              variant: "destructive",
+              title: `Error`,
+              description: `${e.response.data.message}`,
+              duration: 5000,
+            });
+          });
+    }
+    
     return (
         <div className="m-2 space-y-2">
             <Card className="w-full">
@@ -358,6 +383,7 @@ export const DisplayMetaProjectInformationsAsOwner = (props: {metaProject: MetaP
                         }>  
                           <DisplayMetaProjectCollaborationCodeInformations
                             mpCollaborativeCode={code}
+                            handleDeleteCollaborativeCode={handleDeleteCollaborativeCode}
                           />
                         </div>
                       ))}

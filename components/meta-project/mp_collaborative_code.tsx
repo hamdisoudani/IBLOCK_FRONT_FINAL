@@ -18,9 +18,11 @@ import { ScrollArea } from "../ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { convertDateTime } from "@/composables/convert_date_time";
 import { NoContentAvailable } from "../no_content_available"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
 
 type DisplayMetaProjectCollaborationCodeInformationsProps = {
-    mpCollaborativeCode: MetaProjectCollaborativeCodes
+    mpCollaborativeCode: MetaProjectCollaborativeCodes,
+    handleDeleteCollaborativeCode: (collaborativeCodeId: string) => void
 }
 
 function CopyIcon(props: any) {
@@ -43,7 +45,7 @@ function CopyIcon(props: any) {
     )
   }
 export default function DisplayMetaProjectCollaborationCodeInformations(props: DisplayMetaProjectCollaborationCodeInformationsProps) {
-    const { mpCollaborativeCode } = props;
+    const { mpCollaborativeCode, handleDeleteCollaborativeCode } = props;
 
   return (
     <Card className="w-full max-w-[400px]">
@@ -112,6 +114,26 @@ export default function DisplayMetaProjectCollaborationCodeInformations(props: D
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant={"destructive"}>Delete Meta Project</Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete your
+                metaproject and remove any realated data for this project, this includes students projects, invitation codes and students works.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction asChild>
+                <Button variant={"destructive"} onClick={() => handleDeleteCollaborativeCode(mpCollaborativeCode._id.toString())}>Delete</Button>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardContent>
     </Card>
   )
