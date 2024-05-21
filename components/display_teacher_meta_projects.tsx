@@ -10,17 +10,29 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-  } from "@/components/ui/dialog"
+  } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Input } from "./ui/input";
 import { ScrollArea } from "./ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { convertDateTime } from "@/composables/convert_date_time";
 import { NoContentAvailable } from "./no_content_available"
 import Link from "next/link";
+import axiosInstance from "@/plugins/axios";
+import { toast } from "./ui/use-toast";
 type DisplayTeacherOwnerMetaProjectsProps = {
     project: ownedMetaProjectsType,
-    handleDeleteProject?: (project: ownedMetaProjectsType) => void,
-    owned?: boolean
+    handleDeleteMetaProject: (project: ownedMetaProjectsType) => void,
 }
 
 function CopyIcon(props: any) {
@@ -43,8 +55,7 @@ function CopyIcon(props: any) {
     )
   }
 export default function DisplayTeacherOwnerMetaProjects(props: DisplayTeacherOwnerMetaProjectsProps) {
-    const { project, handleDeleteProject, owned } = props;
-
+    const { project } = props;
   return (
     <Card className="w-full max-w-[400px]">
       <CardHeader>
@@ -125,6 +136,27 @@ export default function DisplayTeacherOwnerMetaProjects(props: DisplayTeacherOwn
         <Button asChild>
           <Link href={`/dashboard/meta-project/${project._id}`}>View meta project</Link>
         </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant={"destructive"}>Delete Meta Project</Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete your
+                metaproject and remove any realated data for this project, this includes students projects, invitation codes and students works.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction asChild>
+                <Button variant={"destructive"} onClick={() => props.handleDeleteMetaProject(project)}>Delete</Button>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
       </CardContent>
     </Card>
   )
