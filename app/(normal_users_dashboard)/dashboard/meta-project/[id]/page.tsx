@@ -1,5 +1,6 @@
 "use client";
 
+
 import { DisplayMetaProjectInformationsAsOwner } from "@/components/meta-project/display_mp_information_as_owner";
 import { MetaProject } from "@/lib/types/general.types";
 import axiosInstance from "@/plugins/axios";
@@ -40,9 +41,10 @@ export default function MetaProjectDashboard() {
             {viewAs === 'owner' ? (
                 <DisplayMetaProjectInformationsAsOwner metaProject={metaProject!} setMetaProject={setMetaProject} />
             ): (
-                // <MetaProjectDashboardAsStudent metaProject={metaProject} />
                 null
+                
             )}
         </div>
+        
     )
 }

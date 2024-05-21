@@ -18,7 +18,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { convertDateTime } from "@/composables/convert_date_time";
 import { NoContentAvailable } from "../no_content_available"
-
+import Link from "next/link";
 type DisplayMetaProjectCollaborationCodeInformationsProps = {
     mpCollaborativeCode: MetaProjectCollaborativeCodes
 }
@@ -42,9 +42,11 @@ function CopyIcon(props: any) {
       </svg>
     )
   }
+  
 export default function DisplayMetaProjectCollaborationCodeInformations(props: DisplayMetaProjectCollaborationCodeInformationsProps) {
     const { mpCollaborativeCode } = props;
-
+    
+  
   return (
     <Card className="w-full max-w-[400px]">
       <CardHeader>
@@ -112,6 +114,9 @@ export default function DisplayMetaProjectCollaborationCodeInformations(props: D
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        <Button asChild>
+          <Link href="`/dashboard/project/${project._id}/manage`">Open Project</Link>
+        </Button>
       </CardContent>
     </Card>
   )

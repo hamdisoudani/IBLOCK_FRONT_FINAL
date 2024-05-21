@@ -55,46 +55,9 @@ export default function DisplayStudentJoinedMetaProjects(props: DisplayStudentJo
             </div>
           )}
         </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>View Joined Students</Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Joined Students</DialogTitle>
-            </DialogHeader>
-            <ScrollArea className="h-[300px] w-full">
-              <div className="p-4">
-                {project.members?.length === 0 ? (
-                  <NoContentAvailable title="No student yet" description="All joined students will be displayed here" />
-                ) : (
-                  <div className="grid grid-cols-1 gap-4">
-                    {project.members?.map((member) => (
-                      <div className="flex items-center gap-4" key={member._id}>
-                          <Avatar>
-                          <AvatarImage alt="@shadcn" src="/placeholder-user.jpg" />
-                          <AvatarFallback>CN</AvatarFallback>
-                          </Avatar>
-                          <div>
-                          <p className="font-medium">{member.name}</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">{member.email}</p>
-                          </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              
-              </div>
-            </ScrollArea>
-            <DialogFooter>
-                <DialogClose asChild>
-                    <Button>Close</Button> 
-                </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        
         <Button asChild>
-          <Link href={`/dashboard/meta-project/${project._id}`}>View meta project</Link>
+          <Link href={`/dashboard/project/${project._id}/manage`}>open project</Link>
         </Button>
       </CardContent>
     </Card>

@@ -52,6 +52,7 @@ export interface MetaProject {
     collaborative: "Yes" | "No";
     invitationCode: string;
     createdAt: string;
+    owner?: (MembersEntity) | null;
 }
 
 export interface MetaProjectCollaborativeCodes {
