@@ -60,6 +60,9 @@ export interface MetaProjectCollaborativeCodes {
     childProjectDescription: string;
     members?: (MembersEntity)[] | null;
     numberOfMembers: number;
+    projectDetails?: {
+        _id?: string;
+    } ;
     code: string;
     createdAt: string;
 }

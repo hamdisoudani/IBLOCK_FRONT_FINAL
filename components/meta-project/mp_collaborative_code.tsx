@@ -19,6 +19,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { convertDateTime } from "@/composables/convert_date_time";
 import { NoContentAvailable } from "../no_content_available"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
+import Link from "next/link";
 
 type DisplayMetaProjectCollaborationCodeInformationsProps = {
     mpCollaborativeCode: MetaProjectCollaborativeCodes,
@@ -77,6 +78,7 @@ export default function DisplayMetaProjectCollaborationCodeInformations(props: D
             </div>
           </div>
         </div>
+       
         <Dialog>
           <DialogTrigger asChild>
             <Button>View Joined Students</Button>
@@ -117,7 +119,7 @@ export default function DisplayMetaProjectCollaborationCodeInformations(props: D
         </Dialog>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant={"destructive"}>Delete Meta Project</Button>
+            <Button variant={"destructive"}>Delete Collaborative Code</Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -135,6 +137,9 @@ export default function DisplayMetaProjectCollaborationCodeInformations(props: D
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+        <Button asChild>
+          <Link href={`/dashboard/project/${mpCollaborativeCode.projectDetails?._id}`}>View Project</Link>
+        </Button>
       </CardContent>
     </Card>
   )
