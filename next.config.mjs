@@ -8,7 +8,7 @@ const nextConfig = {
     },
     experimental: {
         serverActions: {
-            allowedOrigins: ["localhost:3000", "iblock-back-test.onrender.com"],
+            allowedOrigins: ["localhost:3000", "iblock-back-test.onrender.com", "miniature-dollop-5595wvgj9rphp465-3005.app.github.dev"],
         }
     }
 };
