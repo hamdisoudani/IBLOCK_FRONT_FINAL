@@ -137,9 +137,11 @@ export default function DisplayMetaProjectCollaborationCodeInformations(props: D
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        <Button asChild>
-          <Link href={`/dashboard/project/${mpCollaborativeCode.projectDetails?._id}`}>View Project</Link>
-        </Button>
+        {mpCollaborativeCode.projectDetails?._id && (
+          <Button asChild>
+            <Link href={`/dashboard/project/${mpCollaborativeCode.projectDetails?._id}`}>View Project</Link>
+          </Button>
+        )}
       </CardContent>
     </Card>
   )
