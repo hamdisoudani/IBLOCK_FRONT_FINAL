@@ -356,9 +356,6 @@ export const DisplayMetaProjectInformationsAsOwner = (props: {metaProject: MetaP
                             "sm:mb-0 mb-1": index == metaProject.projectCodes!.length - 1,
                           })
                         }>  
-                          <DisplayMetaProjectCollaborationCodeInformations
-                            mpCollaborativeCode={code}
-                          />
                         </div>
                       ))}
                       </CardContent>

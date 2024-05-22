@@ -41,14 +41,8 @@ export default function DisplayStudentJoinedMetaProjects(props: DisplayStudentJo
             </div>
           )}
         </div>
-<<<<<<< HEAD
-        
-        <Button asChild>
-          <Link href={`/dashboard/project/${project._id}/manage`}>open project</Link>
-=======
         <Button asChild>
           <Link href={`/dashboard/project/${project._id}`}>View project</Link>
->>>>>>> a0880d4580ee88d7c3cafab7239765ee1bc74650
         </Button>
       </CardContent>
     </Card>
