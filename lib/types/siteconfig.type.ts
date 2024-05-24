@@ -18,7 +18,9 @@ type SiteConfigTypes = {
     siteName: string,
     siteDescription: string,
     landingPage: Links[],
-    socialMedia: SocialMedia[]
+    socialMedia: SocialMedia[],
+    WS_PROJECT_EVENTS?: string
+    WS_ROBOT_EVENTS?: string
 }
 
 export default SiteConfigTypes

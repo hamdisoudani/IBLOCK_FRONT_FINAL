@@ -32,6 +32,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { set } from "react-hook-form";
+import { siteConfig } from "@/configs/siteconfig";
 
 const TitleComponent = ({
   title,
@@ -231,7 +232,6 @@ export default function Page() {
 
     const fetchProjectSavedData = async () => {
       await axiosInstance.get(`/projects/${params.id}`).then((res) => {
-        console.log(res.data)
         setProjectData(res.data.projectDetails);
         setWorkHistory(res.data.workHistory);
         setUserRole(res.data.userRole);
@@ -241,7 +241,6 @@ export default function Page() {
             setIsUnsavedWork(true);
           } else if(res.data.workHistory.workData != null) {
             setXml(res.data.workHistory.workData || "");
-            console.log("loaded", res.data.workHistory.workData)
             setIsUnsavedWork(false);
             setIsLoadedFromUserChoice(true);
           } else {
@@ -349,7 +348,7 @@ export default function Page() {
 
   // Function to connect to WebSocket
   const connectToWebSocket = (url: string, setFn: (socket: Socket | null) => void) => {
-    const socket = io(url, {
+    const socket = io(`${url}`, {
         extraHeaders: {
             Authorization: `Bearer ${data?.user?.accessToken}`,
         }
@@ -471,19 +470,6 @@ export default function Page() {
       }
       if(ws?.connected) {
         ws.emit("get_connected_users", {projectID: params.id})
-        toast({
-          title: "Connected",
-          description: "You are now connected to the server",
-          duration: 5000
-        });
-        // ws.on('newWorkSpaceXmlData', (data: any) => {
-        //   const xml = json2xml(data.payload.json, {compact: true, spaces: 4});
-        //   const xmlElement = Blockly.utils.xml.textToDom(xml);
-        //   Blockly.Events.disable();
-        //   Blockly.Xml.clearWorkspaceAndLoadFromXml(xmlElement, workspace);
-        //   Blockly.Events.enable();
-
-        // });
         ws.on('connected_users', (data: any) => {
           if(data.connectedUsers) {
             setConnectedUsers(data.connectedUsers);
@@ -634,7 +620,6 @@ export default function Page() {
               let oldSelectedBlock = Blockly.getMainWorkspace().getBlockById(data.payload.oldSelectedBlock);
               //console.log("Block clicked", data.payload.newSelectedBlock, data.payload.oldSelectedBlock)
               if(newSelectedBlock) {
-                console.log("runned"  )
                 Blockly.Events.disable();
                 newSelectedBlock.setEnabled(false);
                 newSelectedBlock.setMovable(false);
@@ -645,7 +630,6 @@ export default function Page() {
                 Blockly.Events.enable();
               }
               if(oldSelectedBlock && data.payload.oldSelectedBlock !== data.payload.newSelectedBlock) {
-                console.log("runned")
                 Blockly.Events.disable();
                 oldSelectedBlock.setEnabled(true);
                 oldSelectedBlock.setMovable(true);
@@ -666,15 +650,12 @@ export default function Page() {
             if(workspace) {
                 let block = workspace.getBlockById(data.payload.blockId);
                 if(block) {
-                  console.log("Block found")
                   Blockly.Events.disable();
                   block.setEnabled(true);
                   block.setMovable(true);
                   block.setDeletable(true);
                   block.setWarningText(null);
                   Blockly.Events.enable();
-                } else {
-                  console.log("Block not found")
                 }
             }
           }
@@ -684,7 +665,6 @@ export default function Page() {
     return () => {
       if(ws?.connected) {
         ws.disconnect();
-        console.log("ws disconnected")
       };
     };
   }, [ws, workspace, loading, isLoadedFromUserChoice]);
@@ -692,6 +672,7 @@ export default function Page() {
   useEffect(() => {
     if(workspace && !loading && isLoadedFromUserChoice) {
       if(blocksWs == null) {
+        console.log("tt", process.env.NEXT_PUBLIC_WS_ROBOT_COMMANDS)
         connectToWebSocket("https://iblock-back-test.onrender.com/robot", setBlocksWs);
       }
       if(blocksWs?.connected) {
@@ -705,7 +686,6 @@ export default function Page() {
     return () => {
       if(blocksWs?.connected) {
         blocksWs.disconnect();
-        console.log("ws disconnected")
       };
     };
   }, [blocksWs, workspace, isLoadedFromUserChoice, loading])

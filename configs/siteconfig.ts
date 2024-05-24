@@ -1,6 +1,5 @@
 
 import SiteConfigTypes from "@/lib/types/siteconfig.type";
-import { Facebook, Github } from "lucide-react";
 
 export const siteConfig: SiteConfigTypes = {
     siteName: "Next.js",
@@ -21,4 +20,6 @@ export const siteConfig: SiteConfigTypes = {
             link: 'https://github.com/intellect'
         }
     ],
+    WS_PROJECT_EVENTS: "https://iblock-back-test.onrender.com/",
+    WS_ROBOT_EVENTS: "https://iblock-back-test.onrender.com/robot"
   }
