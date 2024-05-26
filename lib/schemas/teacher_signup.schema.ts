@@ -6,7 +6,11 @@ export const teacherRegisterSchema = Yup.object().shape({
       .required("Email is required"),
     password: Yup.string()
       .min(6, "Password must be at least 6 characters")
-      .required("Password is required"),
+      .required("Password is required")
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%&*])[A-Za-z0-9!@#$%&*]{8,}$/,
+        "Must Contain At Least 8 Characters, One Uppercase, One Lowercase, One Number and One Special Case Character"
+      ),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref("password")], "Passwords must match")
       .required("Confirm Password is required"),

@@ -135,7 +135,6 @@ export default function Page() {
     if(data == "") return;
 
     await axiosInstance.post(`/projects/save`, {projectId:params.id,workData: data}).then((res) => {
-      console.log(res.data);
       toast({
         title: "Saved",
         description: "Workspace data saved successfully",
@@ -157,7 +156,6 @@ export default function Page() {
   const emitWorkspaceCopyData = () => {
     const xml = workSpaceToXml();
     if(ws && xml) {
-      console.log("emitted", xml)
       ws.emit('workSpaceCopyData', xml);
     }
   }

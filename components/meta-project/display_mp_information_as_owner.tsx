@@ -1,7 +1,6 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { DataTable } from '@/components/data-robot-table/data-robot-table';
 import { ArrowUpDown, CopyIcon, MoreHorizontal, Plus } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "../ui/card";
 import { Button } from '@/components/ui/button';
@@ -29,6 +28,8 @@ import {
     DialogTitle,
     DialogTrigger,
   } from "@/components/ui/dialog"
+import Link from "next/link";
+import { DataTable } from "../data-table/data-table";
 
 
 const AddNewCollaborativeCodeComponent = (props: {metaProject: MetaProject, setMetaProject: (metaProject: MetaProject) => void}) => {
@@ -255,27 +256,29 @@ export const DisplayMetaProjectInformationsAsOwner = (props: {metaProject: MetaP
             }
         },
         {
-          id: "select",
-          header: ({ table }) => (
-            <Checkbox
-              checked={
-                table.getIsAllPageRowsSelected() ||
-                (table.getIsSomePageRowsSelected() && "indeterminate")
-              }
-              onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-              aria-label="Select all"
-            />
-          ),
-          cell: ({ row }) => (
-            <Checkbox
-              checked={row.getIsSelected()}
-              onCheckedChange={(value) => row.toggleSelected(!!value)}
-              aria-label="Select row"
-            />
-          ),
-          enableSorting: false,
-          enableHiding: false,
-        },
+          header: metaProject.collaborative === 'Yes' ? 'Group' : 'Project',
+          accessorKey: 'projects.projectName',
+          id: 'projectName',
+          cell: ({ getValue }) => {
+              const value: any = getValue();
+              return (
+                  <span className="text-primary">{value}</span>
+              );
+          }
+      },
+      {
+        header: "Action",
+        accessorKey: 'projects._id',
+        id: 'projectID',
+        cell: ({ getValue }) => {
+            const value: any = getValue();
+            return (
+                <Button asChild>
+                  <Link href={`/dashboard/project/${value}`}>View project</Link>
+                </Button>
+            );
+        }
+    },
     ]
     const handleDeleteCollaborativeCode = async (codeId: string) => {
         await axiosInstance
@@ -346,7 +349,11 @@ export const DisplayMetaProjectInformationsAsOwner = (props: {metaProject: MetaP
                     {metaProject.members?.length === 0 ? (
                         <NoContentAvailable title="No student yet" description="All joined students will be displayed here" />
                     ) : (
-                        <DataTable columns={columns} data={metaProject.members!} />
+                        <DataTable columns={columns} data={metaProject.members!}>
+                          <Button asChild>
+                            <Link href={`/dashboard/meta-project/${metaProject._id}/track`}>Track users</Link>
+                            </Button>
+                        </DataTable>
                     )}
                 </div>
             </div>

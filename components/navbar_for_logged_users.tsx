@@ -59,31 +59,25 @@ const UserDropDown2 = () => {
                     <span className="sr-only">Acme Inc</span>
                   </Link>
                   <Link
-                    href="#"
+                    href="/dashboard"
                     className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
                   >
                     <Home className="h-5 w-5" />
                     Home
                   </Link>
-                  <Link href="#" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
+                  <Link href="/dashboard/profile" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
                     <UserIcon className="w-4 h-4 mr-2" />
-                    My Account
+                    My Profile
                   </Link>
+                  
                   <Link
-                    href="#"
-                    className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                  >
-                    <Package className="h-5 w-5" />
-                    My Projects
-                  </Link>
-                  <Link
-                    href="#"
+                    href="/dashboard/settings"
                     className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
                   >
                     <LineChart className="h-5 w-5" />
                     Settings
                   </Link>
-                  <Link href="dashboard/contactUs" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
+                  <Link href="/contactUs" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
                     <HelpCircleIcon className="w-4 h-4 mr-2" />
                     Contact Us
                   </Link>
@@ -116,19 +110,19 @@ const UserDropDown2 = () => {
         <DropdownMenuContent className="w-50">
           <DropdownMenuSeparator />
           <DropdownMenuItem>
-            <Link href="#" className="flex items-center">
+            <Link href="/dashboard/profile" className="flex items-center">
               <UserIcon className="w-4 h-4 mr-2" />
               Profile
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <Link  href="dashboard/settings"  className="flex items-center">
+            <Link  href="/dashboard/settings"  className="flex items-center">
               <Settings className="w-4 h-4 mr-2" />
               Settings
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <Link href="dashboard/contactUs" className="flex items-center">
+            <Link href="/contactUs" className="flex items-center">
               <HelpCircleIcon className="w-4 h-4 mr-2" />
               Contact Us
             </Link>

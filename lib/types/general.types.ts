@@ -35,6 +35,11 @@ export interface MembersEntity {
     email: string;
     name: string;
     role: string;
+    projects? : {
+            _id: string;
+            projectName: string;
+            projectDescription: string;
+        }
 }
 // End of interfaces for owned and joined meta projects for teacher and student
 

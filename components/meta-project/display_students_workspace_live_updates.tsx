@@ -6,30 +6,53 @@ import { Socket, io } from "socket.io-client";
 import { useSession } from "next-auth/react";
 import Blockly from "blockly";
 import axiosInstance from "@/plugins/axios";
+import { generateColor } from "@marko19907/string-to-color";
 
 type Props = {
     project: UserProject
 }
 
 
-const CursorComponent = () => {
-    return (
-        <svg id="cursorSVG" width="100" height="50" xmlns="http://www.w3.org/2000/svg" className="hidden">
-            <g>
-            <path d="M10 10 L30 10 L20 30 Z" fill="black" />
-            <text x="35" y="20" font-family="Arial" font-size="14" fill="black">Your Name</text>
-            </g>
-        </svg>
-    )
-}
+
 export default function DisplayStudentsWorkspaceLiveUpdates(props: Props) {
     const { project } = props;
     const [connected, setConnected] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [xml, setXml] = useState('');
     const [workspace, setWorkspace] = useState<WorkspaceSvg>();
     const [ws, setWs] = useState<Socket | null>(null);
     const { data } = useSession();
     
+
+    function addBadge(block: any, userId: string, userName: string) {
+      
+        const badgeGroup = Blockly.utils.dom.createSvgElement('g', {
+          'x': 150,
+          'y': 150,
+        }, block.getSvgRoot());
+    
+        // Create the star path
+        const starPath = 'M12 1.04l2.777 6.961h7.027l-5.652 4.374 2.208 6.927L12 14.458l-7.36 4.848 2.208-6.927L2.195 7.995h7.027L12 1.04z';
+        
+        // Create the badge star shape
+        Blockly.utils.dom.createSvgElement('path', {
+            'x': -200,
+            'y': -200,
+            'd': starPath,
+            'class': 'block-owner-badge',
+            'style': `fill: ${generateColor(userId)}; stroke: #000; stroke-width: 0.5px;` 
+        }, badgeGroup);
+
+        // Create the text element for the user name
+        Blockly.utils.dom.createSvgElement('text', {
+            'x': -76,
+            'y': 10, // Position the text slightly above or below the star
+            'class': 'block-owner-name',
+            'style': `font-size: 16px; fill: ${generateColor(userId)}; font-weight: bold; text-anchor: middle;`
+        }, badgeGroup).textContent = userName;
+    }
+
+
      // Function to connect to WebSocket
     const connectToWebSocket = (url: string, setFn: (socket: Socket | null) => void) => {
         const socket = io(url, {
@@ -50,7 +73,6 @@ export default function DisplayStudentsWorkspaceLiveUpdates(props: Props) {
         const fetchBlocks = async () => {
             setLoading(true);
             await axiosInstance.get(`/blocks/predefined`).then((res) => {
-              console.log(res.data.definedData)
               const blocks = res.data.definedData;
               blocks.forEach((block: any) => {
                 Blockly.Blocks[block.name] = {
@@ -69,13 +91,48 @@ export default function DisplayStudentsWorkspaceLiveUpdates(props: Props) {
             }).catch((err) => {
               console.log(err.response.data);
             }).finally(() => {
-                setLoading(false);
             })
-          }
-        if (workspace) {
-            fetchBlocks();
         }
-    } , [workspace]);
+        const fetchProjectSavedData = async () => {
+            await axiosInstance.get(`/projects/${props.project._id}`).then((res) => {
+              if(res.data.workHistory != null) {
+                    //setXml(res.data.workHistory.mainCopy);
+                    if(typeof res.data.workHistory.mainCopy != "undefined" && res.data.workHistory.mainCopy != null && res.data.workHistory.mainCopy != "") {
+                    setXml(res.data.workHistory.mainCopy)
+                    } else if(res.data.workHistory.workData != null) {
+                    setXml(res.data.workHistory.workData || "");
+                    } else {
+                        setXml("");
+                    }
+
+                }
+              
+      
+            }).catch((err: any) => {
+              console.log(err)
+            }).finally(() => {
+              setLoading(false);
+            })
+        }
+        fetchBlocks();
+        fetchProjectSavedData()
+    } , []);
+
+    useEffect(() => {
+        if(workspace && xml) {
+            const data = Blockly.utils.xml.textToDom(xml);
+            Blockly.Xml.domToWorkspace(data, workspace);
+
+            const blocks = workspace?.getAllBlocks();
+            blocks?.forEach((block) => {
+                // add identification to the block
+                const data = JSON.parse(block.data!);
+                if(data) {
+                    addBadge(block, data.ownerID, data.ownerName);
+                }
+            });
+        }
+    }, [workspace, xml]);
 
     useEffect(() => {
         if(!loading && !connected && !ws) {
@@ -91,21 +148,14 @@ export default function DisplayStudentsWorkspaceLiveUpdates(props: Props) {
                 workspace?.clear();
                 const xml = Blockly.utils.xml.textToDom(data.workCopy);
                 Blockly.Xml.domToWorkspace(xml, workspace!);
-                
-                // Get blockly canvas and add an image to it
-                const svg =  `
-                <svg id="cursorSVG" width="100" height="50" xmlns="http://www.w3.org/2000/svg">
-            <g>
-            <path d="M10 10 L30 10 L20 30 Z" fill="black" />
-            <text x="35" y="20" font-family="Arial" font-size="14" fill="black">Your Name</text>
-            </g>
-        </svg>
-        `
-                const blocklyCanvas = workspace?.getCanvas();
-                const img = new Image();
-                img.src = 'data:image/svg+xml;base64,' + btoa(svg);
-                blocklyCanvas?.appendChild(img);
-
+                const blocks = workspace?.getAllBlocks();
+                blocks?.forEach((block) => {
+                    // add identification to the block
+                    const data = JSON.parse(block.data!)
+                    if(data) {
+                        addBadge(block, data.ownerID, data.ownerName);
+                    }
+                });
             });
         }
     } , [ws]);
@@ -119,6 +169,7 @@ export default function DisplayStudentsWorkspaceLiveUpdates(props: Props) {
           <CardContent className="h-full w-full relative">
             <BlocklyWorkspace
                 className="absolute inset-0 w-full h-full dark:bg-gray-600"
+                initialXml={xml}
                 onInject={(workspace) => setWorkspace(workspace)}
                 workspaceConfiguration={{
                 media: "https://google.github.io/blockly/media/",

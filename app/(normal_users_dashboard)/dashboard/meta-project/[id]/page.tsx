@@ -1,6 +1,7 @@
 "use client";
 
 
+import ProjectNotFound from "@/components/errors/project_not_found";
 import { DisplayMetaProjectInformationsAsOwner } from "@/components/meta-project/display_mp_information_as_owner";
 import { MetaProject } from "@/lib/types/general.types";
 import axiosInstance from "@/plugins/axios";
@@ -34,14 +35,14 @@ export default function MetaProjectDashboard() {
         return <div>Loading...</div>
     }
     if (error) {
-        return <div>Something went wrong</div>
+        return <ProjectNotFound message="Sorry but this project was not found or you don't have permission to see this project" />
     }
     return (
         <div>
             {viewAs === 'owner' ? (
                 <DisplayMetaProjectInformationsAsOwner metaProject={metaProject!} setMetaProject={setMetaProject} />
             ): (
-                null
+                <ProjectNotFound message="Sorry but this project was not found or you don't have permission to see this project" />
                 
             )}
         </div>

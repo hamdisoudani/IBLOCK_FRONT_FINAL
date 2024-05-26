@@ -23,10 +23,9 @@ import axiosInstance from "@/plugins/axios"
 import { Skeleton } from "./ui/skeleton"
 import { useErrorToast } from "@/hooks/useToast"
 import { useProfileContext } from "./context/userprofile.context"
-import Link from "next/link"
 import { Badge } from "./ui/badge"
-import { getSession, signIn, useSession } from "next-auth/react"
-import { user } from "@nextui-org/react"
+import { useSession } from "next-auth/react"
+import { usePathname, useRouter } from "next/navigation"
 
 type ProfileType = {
     _id: string, 
@@ -42,12 +41,14 @@ interface Profiles {
 }
 
 export function UserProfiles() {
-    const {currentProfile, setCurrentProfile} = useProfileContext()
+    const {currentProfile, setCurrentProfile, setIsLoading} = useProfileContext()
     const [open, setOpen] = React.useState(false)
     const [value, setValue] = React.useState("")
     const [data, setData] = React.useState<Profiles>();
     const [loading, setLoading] = React.useState(true);
     const { data: session, update } = useSession();
+    const currentPath = usePathname();
+    const router = useRouter();
     React.useEffect(() => {
         const fetchDataFromApi = async () => {
             try {
@@ -74,15 +75,11 @@ export function UserProfiles() {
 
     const SwitchCurrentProfile = async (profile: ProfileType) => {
         setLoading(true);
+        setIsLoading(true);
         await axiosInstance.post('/profile/switch', {
             profileId: profile._id
         }).then(async (res: any) => {
-            console.log(res.data)
             if(res.data.accessToken) {
-                //localStorage.setItem('accessToken', res.data.accessToken)
-                // await signIn('update_profile', {
-                //   user: JSON.stringify({ ...session.data?.user, accessToken: res.data.accessToken }),
-                // });
                 await update({
                   ...session,
                   user: {
@@ -92,11 +89,13 @@ export function UserProfiles() {
                 })
 
             }
+            if(currentPath != "/dashboard") router.push("/dashboard"); // Redirect to dashboard
         }).catch(() => {
             useErrorToast("There was a problem processing your request")
         }).finally(() => {
             setValue(profile.profileName)
             setOpen(false)
+            setIsLoading(false)
         })
     }
     

@@ -970,14 +970,17 @@ const Dashboard = () => {
       });
   };
 
-  if(loading || isLoadingProfiles) return <LoadingButtonsSkeleton />;
+  if(loading || isLoadingProfiles) return <>
+                                      <LoadingButtonsSkeleton />
+                                      <LoadingProjectSkeleton />
+                                    </>;
 
   return (
     <>
       <div className="px-2">
         <div className="flex items-center mb-2">
           <div className="flex-1 sm:w-full">
-            &nbsp;
+            <h1 className="text-2xl font-semibold">Dashboard</h1>
           </div>
           <div className="flex  lg:justify-end md:flex space-x-1 sm:mt-0 mt-1">
             <div>
@@ -1000,6 +1003,7 @@ const Dashboard = () => {
           </div>
         </div>
 
+
         <div className="grid grid-cols-12 my-5 w-full max-w-2xl rounded p-1">
             <div className="col-span-8 w-full flex items-center">
                 <h1 className="text-2xl font-bold">Welcome back, {userInformation?.name}</h1>
@@ -1018,59 +1022,55 @@ const Dashboard = () => {
         
 
         <div className="max-w-screen">
+        
           {/* Render the student or teacher personal projects */}
           {currentProfile?.type == "personal" && (
-            
-            <Card className="m-0 mr-0 border-0 shadow-none bg-transparent">
-              <CardHeader className="py-2 px-3">
-                <CardTitle className="text-2xl">
-                  Browse your projects
-                </CardTitle>
-                <CardDescription>
-                  You can share your projects invitation codes with others to work on them together.
-                </CardDescription>
-              </CardHeader>
-                
-                  <ScrollArea className={cn(
-                    "sm:h-80 h-[450px] w-full rounded-md px-0",
-                    {
-                      "border h-auto": ownedProjects.length == 0,
-                    }
-                  )} >
-                  <CardContent className="flex flex-row flex-wrap sm:space-y-0 space-y-2 sm:px-4 sm:gap-3 px-1 sm:py-2 sm:justify-start justify-center">
-                    {ownedProjects.length == 0
-                      ? 
-                      (
-                        <div className="my-0 mx-auto flex items-center place-content-center place-items-center h-[300px]">
-                          <NoContentAvailable title="No project found" description="Create new project by clicking create new project" />
-                        </div>
-                      )
-                      : ownedProjects.map((project, index) => (
-                          
-                        <div key={project._id} className={
-                          cn({
-                            "sm:mt-0 mt-2": index == 0,
-                            "sm:mb-0 mb-1": index == ownedProjects.length - 1,
-                          })
-                        }>  
-                          <DisplayUserProjects
-                            project={project}
-                            owned
-                            handleDeleteProject={handleDeleteProject}
-                          />
-                        </div>
-                      ))}
-                      </CardContent>
-                  </ScrollArea>
-                
-                
-            </Card>
-          
-          )}
-          
-          {/* Render the joined projects for the student or the teacher */}
-          {
-            currentProfile?.type == "personal" && (
+            <>
+              <Card className="m-0 mr-0 border-0 shadow-none bg-transparent">
+                <CardHeader className="py-2 px-3">
+                  <CardTitle className="text-2xl">
+                    Browse your projects
+                  </CardTitle>
+                  <CardDescription>
+                    You can share your projects invitation codes with others to work on them together.
+                  </CardDescription>
+                </CardHeader>
+                  
+                    <ScrollArea className={cn(
+                      "sm:h-80 h-[450px] w-full rounded-md px-0",
+                      {
+                        "border h-auto": ownedProjects.length == 0,
+                      }
+                    )} >
+                    <CardContent className="flex flex-row flex-wrap sm:space-y-0 space-y-2 sm:px-4 sm:gap-3 px-1 sm:py-2 sm:justify-start justify-center">
+                      {ownedProjects.length == 0
+                        ? 
+                        (
+                          <div className="my-0 mx-auto flex items-center place-content-center place-items-center h-[300px]">
+                            <NoContentAvailable title="No project found" description="Create new project by clicking create new project" />
+                          </div>
+                        )
+                        : ownedProjects.map((project, index) => (
+                            
+                          <div key={project._id} className={
+                            cn({
+                              "sm:mt-0 mt-2": index == 0,
+                              "sm:mb-0 mb-1": index == ownedProjects.length - 1,
+                            })
+                          }>  
+                            <DisplayUserProjects
+                              project={project}
+                              owned
+                              handleDeleteProject={handleDeleteProject}
+                            />
+                          </div>
+                        ))}
+                        </CardContent>
+                    </ScrollArea>
+                  
+                  
+              </Card>
+              {/* Render the joined projects for the student or the teacher */}
               <section className="w-full py-5">
                 <Card className="m-0 p-0 border-0 shadow-none bg-transparent">
                   <CardHeader className="py-2 px-3">
@@ -1112,6 +1112,7 @@ const Dashboard = () => {
                     </ScrollArea>
                 </Card>
               </section>
+              </>
             )
           }
 

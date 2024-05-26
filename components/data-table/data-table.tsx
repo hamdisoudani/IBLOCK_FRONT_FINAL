@@ -53,12 +53,14 @@ type Robot = {
 }
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
-    data: TData[]
+    data: TData[],
+    children?: React.ReactNode
   }
 
-function DataTable<TData, TValue>({
+export function DataTable<TData, TValue>({
     columns,
     data,
+    children
   }: DataTableProps<TData, TValue>) {
     
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
@@ -90,15 +92,22 @@ function DataTable<TData, TValue>({
    
     return (
       <div className="w-full">
-        <div className="flex items-center py-4">
-          <Input
-            placeholder="Filter by name..."
-            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table.getColumn("name")?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm"
-          />
+        <div className="flex items-center py-4 w-full gap-1">
+          <div className="flex-1 w-full">
+            <Input
+              placeholder="Filter by name..."
+              value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+              onChange={(event) =>
+                table.getColumn("name")?.setFilterValue(event.target.value)
+              }
+              className="max-w-sm"
+            />
+          </div>
+          {children ? (
+            <div className="justify-end">
+              {children}
+            </div>
+          ): null}
           <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
