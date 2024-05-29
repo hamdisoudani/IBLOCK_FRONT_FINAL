@@ -14,6 +14,7 @@ export default function TrackPage() {
     const [projects, setProjects] = useState<UserProject[]>([]);
     const [cardsPerPage, setCardsPerPage] = useState(4);
     const [currentPage, setCurrentPage] = useState(0);
+    const [loadingProjects, setLoadingProjects] = useState(true);
 
     const handleCardsPerPageChange = (number:number) => {
       setCardsPerPage(number);
@@ -55,6 +56,8 @@ export default function TrackPage() {
               }
             } catch (error) {
                 console.error(error);
+            } finally {
+              setLoadingProjects(false);
             }
         };
         getAllProjectsUnderThisMetaProject();

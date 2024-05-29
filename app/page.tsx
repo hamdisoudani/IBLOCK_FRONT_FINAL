@@ -21,14 +21,14 @@ export default function Home() {
                 programming through block-based coding and interactive projects.
               </p>
               <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                <Button className="w-full" variant={'default'}>
+                <Button className="w-full" variant={'default'} asChild>
                   <Link
                     href="/register"
                   >
                     Create account
                   </Link>
                 </Button>
-                <Button className="w-full" variant={'secondary'}>
+                <Button className="w-full" variant={'secondary'} asChild>
                   <Link
                     href="/login"
                   >

@@ -14,7 +14,7 @@ export default {
                 const isValidated = await GlobalLoginSchema.validate({email, password});
                 if(!isValidated) return null;
                 try {
-                    const request = await axios.post(`https://iblock-back-test.onrender.com/users/signin`, {email, password});
+                    const request = await axios.post(`https://miniature-dollop-5595wvgj9rphp465-3005.app.github.dev/users/signin`, {email, password});
                     if(request.status == 200) {
                         return {
                             email: request.data.user.email, 

@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { auth } from "@/auth";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as ShadCnToaster } from "react-hot-toast";
+import NextTopLoader from 'nextjs-toploader';
 const inter = Inter({ subsets: ["latin"] });
 
 export default async function RootLayout({
@@ -17,6 +18,8 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
+        <NextTopLoader 
+        color="#ea580c"/>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

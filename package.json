@@ -59,6 +59,7 @@
     "next": "14.2.1",
     "next-auth": "^5.0.0-beta.17",
     "next-themes": "^0.3.0",
+    "nextjs-toploader": "^1.6.12",
     "ngx-ui-switch": "^15.0.0",
     "react": "^18",
     "react-blockly": "^8.1.1",
