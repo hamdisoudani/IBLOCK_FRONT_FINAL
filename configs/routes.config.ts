@@ -51,3 +51,9 @@ export const SUPERADMIN_LOGIN_REDIRECT = "/superadmin"
  * @type {String}
  */
 export const ROBOTADMIN_LOGIN_REDIRECT = "/robot-admin"
+
+/**
+ * The default redirect path after logging in for users with role "schooladmin"
+ * @type {String}
+ */
+export const SCHOOLADMIN_LOGIN_REDIRECT = "/school-admin"
