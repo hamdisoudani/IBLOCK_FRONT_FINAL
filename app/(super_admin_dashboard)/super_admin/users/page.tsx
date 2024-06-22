@@ -27,20 +27,21 @@ export default function Page() {
             
             
             <div className="w-full h-full overflow-auto">
-            <div className="flex items-center justify-between">
                 
-                
-                </div>
                     <div className="flex items-center justify-between flex-wrap mb-4 sm:hidden">
-                        <h2 className="text-2xl font-bold ">Students</h2>
+                        <h2 className="text-2xl font-bold ">Users</h2>
+                        
                         
                     </div>
                     <div className="hidden items-center justify-between flex-wrap mb-4 sm:flex">
-                        <h2 className="text-2xl font-bold ">Students</h2>
+                        <h2 className="text-2xl font-bold ">Users</h2>
                         <div className='flex-1'>
                             &nbsp;
                         </div>
-                        
+                        <div className='flex items-center'>
+                            
+                            
+                        </div>
                     </div>
                     <DataTablePage />
             </div>

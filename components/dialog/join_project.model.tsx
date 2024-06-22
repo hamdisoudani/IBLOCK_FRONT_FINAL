@@ -80,12 +80,18 @@ export default function JoinProjectModel(props: Props) {
         <Dialog open={isDialogOpen}>
             <DialogTrigger asChild>
             <Button
-                variant={"secondary"}
-                onClick={() => setIsDialogOpen(true)}
+                variant={"ghost"}
+                onClick={() => setIsDialogOpen(true)} asChild
+                className="flex justify-start"
             >
-                <Plus className="h-8 w-8 text-white stroke-1" />
-                <p className="text-xs font-light">Join project</p>
+                <span className="w-full inline-flex items-center gap-1 px-3 py-2 rounded-lg cursor-pointer hover:bg-gray-300">
+                    <Plus className="h-6 w-6 text-black" />
+                    <p className="text-sm font-medium text-black">
+                    Join project
+                    </p>
+                </span>
             </Button>
+            
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>

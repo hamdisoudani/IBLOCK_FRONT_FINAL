@@ -15,21 +15,33 @@ export type accessTokenType = {
   iat: number,
   name: string
 }
-
+export type ProfileType = {
+  _id: string, 
+  profileName: string,
+  createdAt: string,
+  updatedAt: string,
+  type: string
+}
+interface Profiles {
+  selectedProfile: ProfileType,
+  availableProfiles: ProfileType[]
+}
 type ProfileContextType = {
   currentProfile: Profile | null;
-  setCurrentProfile: (profile: Profile) => void;
   userInformation: accessTokenType | null;
   isLoadingProfiles: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  profilesData: Profiles  | undefined,
+  getUserProfiles: () => void
 };
 
 const ProfileContext = createContext<ProfileContextType>({
   currentProfile: null,
-  setCurrentProfile: () => {},
   userInformation: null,
   isLoadingProfiles: true,
-  setIsLoading: () => {}
+  setIsLoading: () => {},
+  profilesData: undefined,
+  getUserProfiles: () => {}
 });
 
 export const useProfileContext = () => useContext(ProfileContext);
@@ -39,28 +51,45 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const [userInformation, setUserInformation] = useState<accessTokenType | null>(null);
     const [isLoadingProfiles, setIsLoading] = useState<boolean>(true);
     const [isLoadingError, setIsLoadingError] = useState<boolean>(false);
-    
+    const [profilesData, setData] = useState<Profiles>();
+    const fetchCurrentUserInformation = async () => {
+      try {
+          const response = await axiosInstance.get('/users/whoami');
+          if(response.data) {
+              setUserInformation(response.data.myInformation);
+          } else {
+              setIsLoadingError(true);
+          }
+      } catch (error) {
+          setIsLoadingError(true);
+      }
+  };
+
+  const getUserProfiles = async () => {
+      try {
+      // Contact the API endpoint
+      const response = await axiosInstance.get('/profile');
+      
+      if (response.data) {
+          setData(response.data);
+          setCurrentProfile(response.data.selectedProfile)
+      } else {
+          console.error('Failed to fetch data:', response.statusText);
+      }
+      } catch (error) {
+      console.error('Error fetching data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+  };
     useEffect(() => {
-        const fetchDataFromApi = async () => {
-            try {
-                const response = await axiosInstance.get('/users/whoami');
-                if(response.data) {
-                    setUserInformation(response.data.myInformation);
-                } else {
-                    setIsLoadingError(true);
-                }
-            } catch (error) {
-                setIsLoadingError(true);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchDataFromApi();
+        fetchCurrentUserInformation();
+        getUserProfiles()
     }, []);
     //if(isLoadingProfiles) return (<div>Loading...</div>)
     if(isLoadingError) return (<div>Error fetching your data please refresh this page</div>)
     return (
-      <ProfileContext.Provider value={{ currentProfile, setCurrentProfile, userInformation, isLoadingProfiles, setIsLoading }}>
+      <ProfileContext.Provider value={{ currentProfile, userInformation, isLoadingProfiles, setIsLoading, profilesData, getUserProfiles }}>
         {children}
       </ProfileContext.Provider>
     );

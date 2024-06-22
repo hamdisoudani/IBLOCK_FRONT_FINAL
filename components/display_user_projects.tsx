@@ -26,7 +26,7 @@ export default function DisplayUserProjects(props: CardProjectUiProps) {
     const { project, handleDeleteProject, owned } = props;
 
   return (
-        <Card className="w-[270px] sm:w-[200px] h-full">
+        <Card className="w-[270px] sm:w-[200px] h-full   border dark:border-white border-black">
             <CardHeader className="p-2">
                 <CardTitle className="flex flex-row items-center mt-0 justify-between text-md m-0">
                     <span className="flex-1 truncate">{project.projectName}</span>
@@ -39,7 +39,7 @@ export default function DisplayUserProjects(props: CardProjectUiProps) {
                 
             </CardHeader>
             <CardContent className="flex flex-col px-0 py-0">
-                <div className="w-full h-[150px] flex flex-col">
+                <div className="w-full h-[150px] flex flex-col border dark:border-white border-black">
                     <Image
                         src={projectImg}
                         loading="lazy"

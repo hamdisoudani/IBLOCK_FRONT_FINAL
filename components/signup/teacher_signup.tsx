@@ -49,7 +49,7 @@ export default function TeacherRegister() {
             if(validateFields) {
               const { email, password, fullname } = formData;
         
-              await axiosInstance.post('/users/teacher/signup', {
+              await axiosInstance.post('/auth/teacher/signup', {
                 email,
                 password,
                 name: fullname
@@ -176,7 +176,7 @@ return (
 
                                                 {/* Password Field */}
                                                 <div className="space-y-2">
-                                                    <Label htmlFor="email">Password</Label>
+                                                    <Label htmlFor="password">Password</Label>
                                                     <div className="relative">
 
                                                     <Field
@@ -209,7 +209,7 @@ return (
 
                                                 {/* Confirm Password Field */}
                                                 <div className="space-y-2">
-                                                    <Label htmlFor="email">Confirm password</Label>
+                                                    <Label htmlFor="confirmPassword">Confirm password</Label>
                                                     <div className="relative">
 
                                                     <Field

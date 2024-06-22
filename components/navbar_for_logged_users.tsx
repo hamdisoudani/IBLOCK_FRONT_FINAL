@@ -182,6 +182,7 @@ export const NavbarForNormalUsers = () => {
                     
                     {/* Right Section */}
                     <div className="flex items-center space-x-3">
+                        <ModeToggle />
                         <UserDropDown2 />
                     </div>
                   </NavbarContent>
