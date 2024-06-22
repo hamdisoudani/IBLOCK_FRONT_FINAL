@@ -17,7 +17,7 @@ import axiosInstance from '@/plugins/axios';
 import { useErrorToast, useSuccessToast } from '@/hooks/useToast';
 import { useSignIn } from '@/lib/actions/auth/useAuth';
 import { useSession } from 'next-auth/react';
-import { ADMIN_LOGIN_REDIRECT, DEFAULT_LOGIN_REDIRECT, ROBOTADMIN_LOGIN_REDIRECT } from '@/configs/routes.config';
+import { ADMIN_LOGIN_REDIRECT, DEFAULT_LOGIN_REDIRECT, ROBOTADMIN_LOGIN_REDIRECT, SCHOOLADMIN_LOGIN_REDIRECT } from '@/configs/routes.config';
 
 
 interface loginError {
@@ -53,6 +53,9 @@ export default function StudentSignUp() {
               }
               else if(role == 'robot_admin') {
                 window.location.href = ROBOTADMIN_LOGIN_REDIRECT;
+              }
+              else if(role == 'school_admin') {
+                window.location.href = SCHOOLADMIN_LOGIN_REDIRECT;
               }
               else {
                 window.location.href = DEFAULT_LOGIN_REDIRECT;

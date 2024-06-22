@@ -6,7 +6,8 @@ import {
   apiAuthPrefix,
   publicRoutes,
   ROBOTADMIN_LOGIN_REDIRECT,
-  ADMIN_LOGIN_REDIRECT
+  ADMIN_LOGIN_REDIRECT,
+  SCHOOLADMIN_LOGIN_REDIRECT
 } from '@/configs/routes.config'
 import { auth as session} from "./auth"
 import { NextResponse } from "next/server"
@@ -20,6 +21,7 @@ export default auth(async (req) => {
   const role = data?.user?.role || null;
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
   const isRobotAdminRoute = nextUrl.pathname.startsWith(ROBOTADMIN_LOGIN_REDIRECT);
+  const isSchoolAdminRoute = nextUrl.pathname.startsWith(SCHOOLADMIN_LOGIN_REDIRECT);
   const isSuperAdminRoute = nextUrl.pathname.startsWith(ADMIN_LOGIN_REDIRECT);
   const isDefaultDashboardRoute = nextUrl.pathname.startsWith(DEFAULT_LOGIN_REDIRECT);
 
@@ -31,6 +33,13 @@ export default auth(async (req) => {
   }
 
 
+  if(isSuperAdminRoute) {
+    if(!isLoggedIn || role != 'super_admin') {
+      return Response.redirect(new URL(authRoutes[0], nextUrl))
+    }
+    return NextResponse.next();
+  }
+
   if(isRobotAdminRoute) {
     if(!isLoggedIn || role != 'robot_admin') {
       return Response.redirect(new URL(authRoutes[0], nextUrl))
@@ -38,24 +47,30 @@ export default auth(async (req) => {
     return NextResponse.next();
   }
 
-//   if(isDefaultDashboardRoute) {
-//     if(isLoggedIn && role == 'student' || role == 'teacher') {
-//       return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
-//     }
-//     return null
-//   }
-    if(isAuthRoute) {
-        if(isLoggedIn && role == 'student' || role == 'teacher') {
-            return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
-        }
-        if(isLoggedIn && role == 'admin') {
-            return Response.redirect(new URL(ADMIN_LOGIN_REDIRECT, nextUrl))
-        }
-        if(isLoggedIn && role == 'robot_admin') {
-            return Response.redirect(new URL(ROBOTADMIN_LOGIN_REDIRECT, nextUrl))
-        }
-        return NextResponse.next();
+  if(isSchoolAdminRoute) {
+    if(!isLoggedIn || role != 'school_admin') {
+      return Response.redirect(new URL(authRoutes[0], nextUrl))
     }
+
+    return NextResponse.next()
+  }
+
+
+  if(isAuthRoute) {
+      if(isLoggedIn && role == 'student' || role == 'teacher') {
+          return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
+      }
+      if(isLoggedIn && role == 'super_admin') {
+          return Response.redirect(new URL(ADMIN_LOGIN_REDIRECT, nextUrl))
+      }
+      if(isLoggedIn && role == 'robot_admin') {
+          return Response.redirect(new URL(ROBOTADMIN_LOGIN_REDIRECT, nextUrl))
+      }
+      if(isLoggedIn && role == 'school_admin') {
+        return Response.redirect(new URL(SCHOOLADMIN_LOGIN_REDIRECT, nextUrl))
+      }
+      return NextResponse.next();
+  }
 
     
 
