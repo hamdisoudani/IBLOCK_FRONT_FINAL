@@ -7,7 +7,8 @@ import {
   publicRoutes,
   ROBOTADMIN_LOGIN_REDIRECT,
   ADMIN_LOGIN_REDIRECT,
-  SCHOOLADMIN_LOGIN_REDIRECT
+  SCHOOLADMIN_LOGIN_REDIRECT,
+  SUPERADMIN_LOGIN_REDIRECT
 } from '@/configs/routes.config'
 import { auth as session} from "./auth"
 import { NextResponse } from "next/server"
@@ -32,6 +33,12 @@ export default auth(async (req) => {
     return NextResponse.next();
   }
 
+  if(isDefaultDashboardRoute) {
+    if(!isLoggedIn || (role != 'student' && role != 'teacher')) {
+      return Response.redirect(new URL(authRoutes[0], nextUrl))
+    }
+    return NextResponse.next();
+  }
 
   if(isSuperAdminRoute) {
     if(!isLoggedIn || role != 'super_admin') {
@@ -57,11 +64,11 @@ export default auth(async (req) => {
 
 
   if(isAuthRoute) {
-      if(isLoggedIn && role == 'student' || role == 'teacher') {
+      if(isLoggedIn && (role == 'student' || role == 'teacher')) {
           return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
       }
       if(isLoggedIn && role == 'super_admin') {
-          return Response.redirect(new URL(ADMIN_LOGIN_REDIRECT, nextUrl))
+          return Response.redirect(new URL(SUPERADMIN_LOGIN_REDIRECT, nextUrl))
       }
       if(isLoggedIn && role == 'robot_admin') {
           return Response.redirect(new URL(ROBOTADMIN_LOGIN_REDIRECT, nextUrl))

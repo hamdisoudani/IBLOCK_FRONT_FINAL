@@ -19,6 +19,7 @@ import {  FaSchool } from "react-icons/fa"
 import { FaUsersGear } from "react-icons/fa6"
 import { FaSchoolFlag } from "react-icons/fa6";
 import Link from "next/link"
+import LogOutComponent from "./logout";
 
 type MenuItem = {
     name: string;
@@ -30,22 +31,22 @@ type MenuItem = {
     const menuItems: MenuItem[] = [
       {
         name: "users",
-        path: "/super_admin/users",
+        path: "/super-admin/users",
         icon: (
           <FaUsersGear
             className={`sm:w-5 sm:h-5 h-6 w-6 ${
-              pathName === "/super_admin/users" ? "text-foreground" : "text-muted-foreground"
+              pathName === "/super-admin/users" ? "text-foreground" : "text-muted-foreground"
             }`}
           />
         ),
       },
       {
         name: "schools",
-        path: "/super_admin/schools",
+        path: "/super-admin/schools",
         icon: (
             <FaSchoolFlag  
             className={`sm:w-5 sm:h-5 h-6 w-6 ${
-              pathName === "/super_admin/schools" ? "text-foreground" : "text-muted-foreground"
+              pathName === "/super-admin/schools" ? "text-foreground" : "text-muted-foreground"
             }`}
           />
         ),
@@ -54,16 +55,16 @@ type MenuItem = {
       
       {
         name: "Logout",
-        path: "#",
+        path: "/logout", 
         icon: (
-          <LogOutIcon
-            className={`sm:w-5 sm:h-5 h-6 w-6 ${
-              pathName === "#" ? "text-foreground" : "text-muted-foreground"
-            }`}
-          />
-        ),
+          <div className={
+            cn("flex justify-start hover:text-gray-700")
+          } >
+            <LogOutComponent classNames="ml-0 pl-0" />
+          </div>
+          
+        ), 
       },
-      
     ];
      
     return (
@@ -113,18 +114,18 @@ export const NavbarForSuperAdmin = () => {
     const menuItems: MenuItem[] = [
       {
         name: "Home",
-        path: "/super_admin",
+        path: "/super-admin",
         icon: (
           <FaSchool
             className={`sm:w-5 sm:h-5 h-6 w-6 ${
-              pathName === "/super_admin" ? "text-foreground" : "text-muted-foreground"
+              pathName === "/super-admin" ? "text-foreground" : "text-muted-foreground"
             }`}
           />
         ),
       },
       {
         name: "users",
-        path: "/super_admin/users",
+        path: "/super-admin/users",
         icon: (
           <FaUsersGear
             className={`sm:w-5 sm:h-5 h-6 w-6 ${
@@ -135,11 +136,11 @@ export const NavbarForSuperAdmin = () => {
       },
       {
         name: "schools",
-        path: "/super_admin/schools",
+        path: "/super-admin/schools",
         icon: (
             <FaSchoolFlag  
             className={`sm:w-5 sm:h-5 h-6 w-6 ${
-              pathName === "/super_admin/schools" ? "text-foreground" : "text-muted-foreground"
+              pathName === "/super-admin/schools" ? "text-foreground" : "text-muted-foreground"
             }`}
           />
         ),
@@ -165,7 +166,7 @@ export const NavbarForSuperAdmin = () => {
                     <div className="flex items-end ml-auto space-x-3">
                         <MenuActionsSchool pathName={pathName} />
                     </div>
-                </div>
+                  </div>
 
                   {/* Desktop View */}
                   <div className="hidden sm:flex sm:justify-center">
@@ -201,10 +202,7 @@ export const NavbarForSuperAdmin = () => {
                           {/* Right Section */}
                           <div className="flex items-center justify-end space-x-2">
                               <ModeToggle />
-                              <Button className="flex items-center space-x-2" variant="outline">
-                                  <LogOutIcon className="h-5 w-5" />
-                                  <span>Log Out</span>
-                              </Button>
+                              <LogOutComponent />
                           </div>
                       </NavbarContent>
                   </div>

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, Fragment, SetStateAction, useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -964,7 +964,7 @@ const Dashboard = () => {
           <div className="flex-1 sm:w-full">
             <h1 className="text-2xl font-semibold">Dashboard</h1>
           </div>
-          <div className="flex  lg:justify-end md:flex space-x-1 sm:mt-0 mt-1">
+          <div className="flex lg:justify-end md:flex space-x-1 sm:mt-0 mt-1">
             <div>
                 <div className="space-x-1 flex items-center justify-end">
                   {currentProfile?.type == "personal" && (

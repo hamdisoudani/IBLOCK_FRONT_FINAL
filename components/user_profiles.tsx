@@ -65,7 +65,7 @@ export function UserProfiles() {
     if(isLoadingProfiles) return (
         <>
             <div className="flex items-center space-x-4">
-                <Skeleton className="h-10 w-52" />
+                <Skeleton className="h-10 sm:w-[180px] w-[150px]" />
             </div>
         </>
     )

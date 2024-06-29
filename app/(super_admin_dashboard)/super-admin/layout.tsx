@@ -15,12 +15,12 @@ export default function Main({
     enableSystem
     disableTransitionOnChange
   >
-        <div className=" rounded-md">
+        <div>
           
             <ProfileProvider
             >
                 <NavbarForSuperAdmin />
-                <div className="m-3 rounded-md">
+                <div className="sm:m-3">
                 
                 {children}
                 

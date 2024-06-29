@@ -2,7 +2,7 @@
 import SiteConfigTypes from "@/lib/types/siteconfig.type";
 
 export const siteConfig: SiteConfigTypes = {
-    siteName: "Next.js",
+    siteName: "IBLOCK",
     siteDescription:
       "Beautifully designed components that you can copy and paste into your apps. Accessible. Customizable. Open Source.",
     landingPage: [

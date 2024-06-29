@@ -1,26 +1,103 @@
 "use client";
 import { Button } from '@/components/ui/button';
-import React, { useState } from 'react';
-import { TfiLayoutGrid4Alt } from "react-icons/tfi";
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import React, { useEffect, useState } from 'react';
 import "react-form-wizard-component/dist/style.css";
-import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import Link from 'next/link';
-import DataTablePage from '@/components/data-table/data-table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FaSchool } from "react-icons/fa";
-import { FaUsersGear } from "react-icons/fa6";
-import { LiaChalkboardTeacherSolid } from "react-icons/lia";
-import { LiaBookSolid } from "react-icons/lia";
-import { BsFileTextFill } from "react-icons/bs";
-import { CirclePlusIcon } from 'lucide-react';
+import { DataTable } from '@/components/data-table/data-table';
+import { ArrowUpDown, CirclePlusIcon } from 'lucide-react';
+import axiosInstance from '@/plugins/axios';
+import { ColumnDef } from '@tanstack/react-table';
+import { MembersDetailsEntity, SchoolAdminAllUsers } from '@/lib/types/school_admin_all_users.types';
 
 
 
   
-export default function Page() {
+export default function DisplaySchoolUserInformations() { 
+    const [loading, setLoading] = useState<boolean>(true);
+    const [forbidden, setForbidden] = useState<boolean>(false);
+    const [usersData, setUsersData] = useState<SchoolAdminAllUsers | null>(null);
+    const columns: ColumnDef<MembersDetailsEntity>[] = [
+        {
+          header: ({ column }) => {
+            return (
+              <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+              >
+                Name
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            )
+          },
+            accessorKey: 'name',
+            id: 'name',
+        },
+        {
+            header: 'Email',
+            accessorKey: 'email',
+            id: 'email',
+        },
+        {
+            header: 'Role',
+            accessorKey: 'role',
+            id: 'role'
+        },
+        {
+          header: 'Created Projects',
+          accessorKey: 'projectsCount',
+          id: 'projectsCount',
+          cell: ({ getValue, row }) => {
+              const value: any = getValue();
+              return (
+                //   Based on user role, we can decide to show the projects count or not
+                row.getValue('role') === 'teacher' ? (
+                    <span>{value}</span>
+                ) : (
+                    <span>N/A</span>
+                )
+              );
+          }
+      },
+      {
+        header: "Action",
+        accessorKey: '_id',
+        id: '_id',
+        cell: ({ getValue }) => {
+            const value: any = getValue();
+            return (
+                <Button asChild>
+                    <Link href={`/school-admin/users/${value}`}>View User
+                    </Link>
+                </Button>
+            );
+        }
+    }
+       
+    ]
+    useEffect(() => {
+        const getUsers = async () => {
+            await axiosInstance.get('/school-admin/users')
+            .then((res) => {
+                if(res.data){
+                    console.log(res.data)
+                    setUsersData(res.data)
+                }
+            }).catch((err) => {
+                setForbidden(true)
+            }).finally(() => {
+                setLoading(false)
+            })
+        }
+    
+        getUsers();
+      }, []);
+
+    if (loading) {
+        return <div>Loading...</div>
+    }
+    if (forbidden) {
+        return <div>Forbidden</div>
+    }
    
     return (
         <div className="flex w-full h-full">
@@ -43,7 +120,10 @@ export default function Page() {
                             
                         </div>
                     </div>
-                    <DataTablePage />
+                    <div className="flex flex-col gap-4">
+                     <DataTable columns={columns} data={usersData?.users.membersDetails || []} /> 
+
+                    </div>.
             </div>
             
             
