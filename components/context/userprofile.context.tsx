@@ -1,6 +1,9 @@
 // ProfileContext.tsx
 import axiosInstance from '@/plugins/axios';
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useIsOnline } from 'react-use-is-online';
+import NoInternetConnection from '../errors/no_internet_connection';
+import ErrorLoadingPgae from '../errors/error_loading_page';
 
 type Profile = {
   _id: string;
@@ -22,6 +25,7 @@ type ProfileContextType = {
   userInformation: accessTokenType | null;
   isLoadingProfiles: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsLoadingError: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const ProfileContext = createContext<ProfileContextType>({
@@ -29,7 +33,8 @@ const ProfileContext = createContext<ProfileContextType>({
   setCurrentProfile: () => {},
   userInformation: null,
   isLoadingProfiles: true,
-  setIsLoading: () => {}
+  setIsLoading: () => {},
+  setIsLoadingError: () => {}
 });
 
 export const useProfileContext = () => useContext(ProfileContext);
@@ -39,7 +44,8 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const [userInformation, setUserInformation] = useState<accessTokenType | null>(null);
     const [isLoadingProfiles, setIsLoading] = useState<boolean>(true);
     const [isLoadingError, setIsLoadingError] = useState<boolean>(false);
-    
+    const { isOffline } = useIsOnline();
+
     useEffect(() => {
         const fetchDataFromApi = async () => {
             try {
@@ -58,9 +64,10 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
         fetchDataFromApi();
     }, []);
     //if(isLoadingProfiles) return (<div>Loading...</div>)
-    if(isLoadingError) return (<div>Error fetching your data please refresh this page</div>)
+    if(isLoadingError) return <ErrorLoadingPgae />
+    if(isOffline) return <NoInternetConnection />
     return (
-      <ProfileContext.Provider value={{ currentProfile, setCurrentProfile, userInformation, isLoadingProfiles, setIsLoading }}>
+      <ProfileContext.Provider value={{ currentProfile, setCurrentProfile, userInformation, isLoadingProfiles, setIsLoading, setIsLoadingError }}>
         {children}
       </ProfileContext.Provider>
     );

@@ -221,40 +221,6 @@ const JoinMPChildProject = () => {
   )
 
 }
-const JoinClass = () => {
-  return(
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant={ "outline" }>
-          <Plus className="h-8 w-8 text-white stroke-1" />
-          <p className="text-xs text-white font-light ml-[18px] ">
-            join class
-          </p>
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Join class</DialogTitle>
-          <DialogDescription>
-            Anyone who has this code will be able to Join
-            class.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex items-center space-x-2">
-          <div className="grid flex-1 gap-2">
-            <Label htmlFor="link" className="sr-only">
-              code
-            </Label>
-            <Input id="link" defaultValue="" />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button type="submit">Join</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
-}
 const CreateProject = (props: {ownedProjects: UserProject[], setOwnedProjects: (ownedProjects: UserProject[]) => void}) => {
   const {ownedProjects, setOwnedProjects} = props;
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -488,83 +454,9 @@ type UserClassType = {
   updatedAt: string;
   _id: string;
 };
-const LoadingProjectSkeleton = () => {
-  return (
-    <div className="grid grid-cols-3">
-      {Array(3)
-        .fill("")
-        .map(() => (
-          <div className="col-span-1">
-            <div className="flex flex-col space-y-3">
-              <Skeleton className="h-[125px] w-[250px] rounded-xl" />
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-[250px]" />
-                <Skeleton className="h-4 w-[200px]" />
-              </div>
-            </div>
-          </div>
-        ))}
-    </div>
-  );
-};
-const LoadingButtonsSkeleton = () => {
-  return (
-    <div className="grid grid-cols-2">
-      {Array(2)
-        .fill("")
-        .map((item, index) => (
-          <div className="col-span-1" key={index}>
-            <div className="flex flex-col space-y-3">
-              <Skeleton className="h-[12px] w-[30px] rounded-sm" />
-            </div>
-          </div>
-        ))}
-    </div>
-  );
-};
-function ClassesCard(classUser: UserClassType) {
-  return (
-    <><div className="relative p-4">
-    <h3 className="text-xl font-semibold">{classUser.className}</h3>
-    <div className="relative mb-4 rounded-md max-w-full overflow-hidden bg-gray-300 w-auto md:h-[250px] h-[180px] lg:h-[120px] lg:w-[160px] lg:max-w-[300px] mt-2">
-      <Image
-        alt={`Image for ${classUser.className}`}
-        src={classImg}
-        className="object-cover w-full h-full "
-      />
-      <div className="absolute top-0 right-0 p-2 cursor-pointer rounded-md hover:bg-gray-200">
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Trash className=" text-black" />
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete
-                your project and remove your data from our servers.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={() => {}}>
-                Continue
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
 
-      <p className="text-sm text-gray-600">{classUser.createdAt}</p>
-      <p className="text-sm text-gray-600">{classUser.classOwner}</p>
-    </div>
-  </div>
-  </>
-    
-  );
-}
 const Dashboard = () => {
-  const { currentProfile, userInformation, isLoadingProfiles } = useProfileContext();
+  const { currentProfile, userInformation, isLoadingProfiles, setIsLoadingError } = useProfileContext();
   const [loading, setLoading] = useState(true);
   const [ownedProjects, setOwnedProjects] = useState<UserProject[]>([]);
   const [joinedProjects, setJoinedProjects] = useState<UserProject[]>([]);
@@ -859,7 +751,7 @@ const Dashboard = () => {
           if (res.data.joinedProjects) setJoinedProjects(res.data.joinedProjects);
         })
         .catch((error) => {
-          console.log("error", error);
+          setIsLoadingError(true);
         })
         .finally(() => {
           setLoading(false);
@@ -970,10 +862,39 @@ const Dashboard = () => {
       });
   };
 
-  if(loading || isLoadingProfiles) return <>
-                                      <LoadingButtonsSkeleton />
-                                      <LoadingProjectSkeleton />
-                                    </>;
+  if(loading || isLoadingProfiles) return (
+    <div className="px-2">
+      <div className="flex items-center mb-2">
+        <div className="flex-1 sm:w-full">
+          <Skeleton className="w-48 h-8 rounded" />
+        </div>
+        <div className="flex lg:justify-end md:flex space-x-1 sm:mt-0 mt-1">
+          <Skeleton className="w-32 h-8 rounded" />
+        </div>
+      </div>
+      <div className="grid grid-cols-12 my-5 w-full max-w-2xl rounded p-1">
+        <div className="col-span-8 w-full flex items-center">
+          <Skeleton className="w-64 h-8 rounded" />
+        </div>
+        <div className="col-span-4 flex justify-end gap-2 w-full">
+          <Skeleton className="h-[100px] w-[100px] rounded-full" />
+        </div>
+      </div>
+      <div className="max-w-screen">
+        <Card className="m-0 mr-0 border-0 shadow-none bg-transparent">
+          <CardHeader className="py-2 px-3">
+            <Skeleton className="w-48 h-8 rounded" />
+            <Skeleton className="w-64 h-4 mt-2 rounded" />
+          </CardHeader>
+          <ScrollArea className="sm:h-80 h-[450px] w-full rounded-md px-0">
+            <CardContent className="flex flex-row flex-wrap sm:space-y-0 space-y-2 sm:px-4 sm:gap-3 px-1 sm:py-2 sm:justify-start justify-center">
+              <Skeleton className="w-full h-[300px] rounded" />
+            </CardContent>
+          </ScrollArea>
+        </Card>
+      </div>
+    </div>
+  );
 
   return (
     <>

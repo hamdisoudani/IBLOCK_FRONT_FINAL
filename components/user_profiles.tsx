@@ -41,7 +41,7 @@ interface Profiles {
 }
 
 export function UserProfiles() {
-    const {currentProfile, setCurrentProfile, setIsLoading} = useProfileContext()
+    const {currentProfile, setCurrentProfile, setIsLoading, setIsLoadingError} = useProfileContext()
     const [open, setOpen] = React.useState(false)
     const [value, setValue] = React.useState("")
     const [data, setData] = React.useState<Profiles>();
@@ -56,13 +56,13 @@ export function UserProfiles() {
             const response = await axiosInstance.get('/profile');
             
             if (response.data) {
-                setData(response.data);
-                setCurrentProfile(response.data.selectedProfile)
+              setData(response.data);
+              setCurrentProfile(response.data.selectedProfile)
             } else {
-                console.error('Failed to fetch data:', response.statusText);
+              setIsLoadingError(true)
             }
             } catch (error) {
-            console.error('Error fetching data:', error);
+              setIsLoadingError(true)
             } finally {
             setLoading(false);
             }
