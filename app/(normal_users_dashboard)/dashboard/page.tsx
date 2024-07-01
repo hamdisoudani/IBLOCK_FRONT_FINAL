@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, Fragment, SetStateAction, useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -68,6 +68,7 @@ import { createMetaProjectSchema } from "@/lib/schemas/create_meta_project.schem
 import DisplayStudentJoinedMetaProjects from "@/components/meta-project/display_student_meta_projects";
 import { user } from "@nextui-org/react";
 import { joinProjectShema } from "@/lib/schemas/manage_project/join_project.schema";
+import JoinSchool from "@/components/dialog/join_school.model";
 const JoinMPChildProject = () => {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -106,7 +107,7 @@ const JoinMPChildProject = () => {
     };
   
   return(
-    <div >
+    <div className="w-screen sm:w-auto">
       <Dialog open={isDialogOpen}>
         <DialogTrigger asChild>
           <Button
@@ -256,7 +257,8 @@ const CreateProject = (props: {ownedProjects: UserProject[], setOwnedProjects: (
       });
   };
   return(
-    <Dialog open={isDialogOpen}>
+    <div className="w-screen sm:w-auto">
+      <Dialog open={isDialogOpen}>
       <DialogTrigger asChild>
         <Button
           variant={"default"}
@@ -394,6 +396,8 @@ const CreateProject = (props: {ownedProjects: UserProject[], setOwnedProjects: (
         </Formik>
       </DialogContent>
     </Dialog>
+    </div>
+    
   )
 }
 
@@ -408,38 +412,9 @@ const JoinClassAndSchool = () => {
           <CiMenuKebab />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 dark:bg-current bg-black rounded-lg mr-3">
-        <Dialog>
-          <DialogTrigger className="w-full">
-            <span className="w-full inline-flex items-center gap-1 px-3 py-2 rounded-lg cursor-pointer hover:bg-gray-300">
-              <Plus className="h-6 w-6 text-black" />
-              <p className="text-sm font-medium text-black">
-                Join school
-              </p>
-            </span>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Type invitation code</DialogTitle>
-              <DialogDescription>
-                Anyone who has this code will be able to Join
-                school.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex items-center space-x-2">
-              <div className="grid flex-1 gap-2">
-                <Label htmlFor="link" className="sr-only">
-                  code
-                </Label>
-                <Input id="link" defaultValue="" />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="submit">Join</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-        <DropdownMenuSeparator />
+      <DropdownMenuContent className="w-56 dark:bg-current bg-white dark:border-white border-black rounded-lg mr-3">
+        <JoinSchool />
+        <DropdownMenuSeparator className="dark:bg-black bg-black" /> 
         <JoinProjectModel setJoinedProjects={setJoinedProjects} />
       </DropdownMenuContent>
     </DropdownMenu>
@@ -529,7 +504,8 @@ const Dashboard = () => {
         });
     };
     return(
-      <Dialog open={isDialogOpen}>
+      <div className="w-screen sm:w-auto">
+        <Dialog open={isDialogOpen} >
         <DialogTrigger asChild>
           <Button
             variant={"default"}
@@ -704,6 +680,8 @@ const Dashboard = () => {
           </Formik>
         </DialogContent>
       </Dialog>
+      </div>
+      
     )
   }
 
@@ -898,12 +876,13 @@ const Dashboard = () => {
 
   return (
     <>
+      <div className="w-screen sm:w-auto" >
       <div className="px-2">
         <div className="flex items-center mb-2">
           <div className="flex-1 sm:w-full">
             <h1 className="text-2xl font-semibold">Dashboard</h1>
           </div>
-          <div className="flex  lg:justify-end md:flex space-x-1 sm:mt-0 mt-1">
+          <div className="flex lg:justify-end md:flex space-x-1 sm:mt-0 mt-1">
             <div>
                 <div className="space-x-1 flex items-center justify-end">
                   {currentProfile?.type == "personal" && (
@@ -947,7 +926,7 @@ const Dashboard = () => {
           {/* Render the student or teacher personal projects */}
           {currentProfile?.type == "personal" && (
             <>
-              <Card className="m-0 mr-0 border-0 shadow-none bg-transparent">
+              <Card className="m-0 mr-0 border dark:border-white border-black shadow-none bg-transparent">
                 <CardHeader className="py-2 px-3">
                   <CardTitle className="text-2xl">
                     Browse your projects
@@ -993,7 +972,7 @@ const Dashboard = () => {
               </Card>
               {/* Render the joined projects for the student or the teacher */}
               <section className="w-full py-5">
-                <Card className="m-0 p-0 border-0 shadow-none bg-transparent">
+                <Card className="m-0 p-0 border dark:border-white border-black shadow-none bg-transparent">
                   <CardHeader className="py-2 px-3">
                     <CardTitle className="text-2xl">
                       Explore your teammates projects
@@ -1040,7 +1019,7 @@ const Dashboard = () => {
           {/* Render the meta projects in school profile for teacher */}
           {currentProfile?.type == "school"  && userInformation?.role == "teacher"  && (
             <section className="w-full py-5">
-            <Card className="m-0 mr-0 border-0 shadow-none bg-transparent">
+            <Card className="m-0 mr-0 border dark:border-white border-black shadow-none bg-transparent">
               <CardHeader className="py-2 px-3">
                 <CardTitle className="text-2xl">
                   Browse your meta projects
@@ -1086,7 +1065,7 @@ const Dashboard = () => {
             
             <section className="w-full py-5">
               
-            <Card className="m-0 mr-0 border-0 shadow-none bg-transparent">
+            <Card className="m-0 mr-0 border dark:border-white border-black shadow-none bg-transparent">
               <CardHeader className="py-2 px-3">
                 <CardTitle className="text-2xl flex justify-between">
                   Browse your joined meta projects
@@ -1128,6 +1107,7 @@ const Dashboard = () => {
           </section>
           )}
         </div>
+      </div>
       </div>
     </>
   );

@@ -44,7 +44,7 @@ export const ADMIN_LOGIN_REDIRECT = "/admin"
  * The default redirect path after logging in for users with role "superadmin"
  * @type {String}
  */
-export const SUPERADMIN_LOGIN_REDIRECT = "/superadmin"
+export const SUPERADMIN_LOGIN_REDIRECT = "/super-admin"
 
 /**
  * The default redirect path after logging in for users with role "robotadmin"

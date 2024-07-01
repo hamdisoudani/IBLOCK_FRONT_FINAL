@@ -31,6 +31,7 @@ import {
 import { UserProfiles } from "./user_profiles";
 import LogOutComponent, { MobileLogOutComponent } from "./logout";
 import { useProfileContext } from "./context/userprofile.context";
+import { Skeleton } from "./ui/skeleton";
 type MenuItem = {
     name: string;
     path: string;
@@ -95,7 +96,11 @@ const UserDropDown2 = () => {
     );
   };
   const UserDropDown = () => {
-    const {userInformation} = useProfileContext();
+    const {userInformation, isLoadingProfiles} = useProfileContext();
+
+    if(isLoadingProfiles) return (
+      <Skeleton className="h-8 w-8 rounded-full" />
+    )
     return (
       <DropdownMenu>
         
@@ -182,13 +187,14 @@ export const NavbarForNormalUsers = () => {
                     
                     {/* Right Section */}
                     <div className="flex items-center space-x-3">
+                        <ModeToggle />
                         <UserDropDown2 />
                     </div>
                   </NavbarContent>
                 </div>
                 {/* Desktop View */}
                 <div className="hidden sm:flex sm:justify-center">
-                  <NavbarContent justify="center" className="flex justify-between" style={{width: "92vw"}}>
+                  <NavbarContent justify="center" className="flex justify-between w-[92vw] sm:w-[96.8vw]">
                     <div className="flex flex-1 justify-between w-full">
                       {/* Left Section */}
                       <div className="flex flex-1 w-[90px]">

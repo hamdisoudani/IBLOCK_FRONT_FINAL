@@ -20,72 +20,43 @@ import { FaUsersGear } from "react-icons/fa6"
 import { LiaBookSolid, LiaChalkboardTeacherSolid } from "react-icons/lia"
 import { BsFileTextFill } from "react-icons/bs"
 import Link from "next/link"
+import LogOutComponent, { MobileLogOutComponent } from "./logout";
 
 type MenuItem = {
     name: string;
     path: string;
     icon: React.JSX.Element;
   };
+  
   const MenuActionsSchool = (props:  {pathName: string}) => {
     const { pathName } = props;
     const menuItems: MenuItem[] = [
       {
-        name: "Students",
-        path: "/school_admin/users/students",
+        name: "users",
+        path: "/school-admin/users",
         icon: (
           <FaUsersGear
             className={`sm:w-5 sm:h-5 h-6 w-6 ${
-              pathName === "/school_admin/users/students" ? "text-foreground" : "text-muted-foreground"
+              pathName === "/school_admin/users" ? "text-foreground" : "text-muted-foreground"
             }`}
           />
         ),
       },
-      {
-        name: "Teachers",
-        path: "/school_admin/users/teachers",
-        icon: (
-          <LiaChalkboardTeacherSolid
-            className={`sm:w-5 sm:h-5 h-6 w-6 ${
-              pathName === "/school_admin/users/teachers" ? "text-foreground" : "text-muted-foreground"
-            }`}
-          />
-        ),
-      },
-      {
-        name: "Classes",
-        path: "/school_admin/classes",
-        icon: (
-          <LiaBookSolid
-            className={`sm:w-5 sm:h-5 h-6 w-6 ${
-              pathName === "/school_admin/classes" ? "text-foreground" : "text-muted-foreground"
-            }`}
-          />
-        ),
-      },{
-        name: "Reports",
-        path: "#",
-        icon: (
-          <BsFileTextFill
-            className={`sm:w-5 sm:h-5 h-6 w-6 ${
-              pathName === "#" ? "text-foreground" : "text-muted-foreground"
-            }`}
-          />
-        ),
-      },
-      
       {
         name: "Logout",
-        path: "#",
+        path: "/logout", 
         icon: (
-          <LogOutIcon
-            className={`sm:w-5 sm:h-5 h-6 w-6 ${
-              pathName === "#" ? "text-foreground" : "text-muted-foreground"
-            }`}
-          />
-        ),
+          <div className={
+            cn("flex justify-start hover:text-gray-700")
+          } >
+            <LogOutComponent classNames="ml-0 pl-0" />
+          </div>
+          
+        ), 
       },
       
     ];
+    
      
     return (
       <div className="flex flex-col">
@@ -107,7 +78,10 @@ type MenuItem = {
                 {
                   menuItems.map(item => {
                     return (
-                        <Link className={
+                        item.name === "Logout" ? (
+                          item.icon
+                    ): (
+                      <Link className={
                           cn("flex items-center gap-2 mt-2 hover:text-gray-700", {
                             "flex items-center gap-2 mt-2 hover:text-gray-50 bg-gray-800 rounded-md p-2": item.path === pathName
                           })
@@ -115,7 +89,7 @@ type MenuItem = {
                             {item.icon}
                             <span>{item.name}</span>
                         </Link>
-                    )
+                    ))
                   })
                     
                 }
@@ -134,54 +108,22 @@ export const NavbarForSchoolAdmin = () => {
     const menuItems: MenuItem[] = [
       {
         name: "School Dashboard",
-        path: "/school_admin",
+        path: "/school-admin",
         icon: (
           <FaSchool
             className={`sm:w-5 sm:h-5 h-6 w-6 ${
-              pathName === "/school_admin" ? "text-foreground" : "text-muted-foreground"
+              pathName === "/school-admin" ? "text-foreground" : "text-muted-foreground"
             }`}
           />
         ),
       },
       {
-        name: "Students",
-        path: "/school_admin/users/students",
+        name: "users",
+        path: "/school-admin/users",
         icon: (
           <FaUsersGear
             className={`sm:w-5 sm:h-5 h-6 w-6 ${
-              pathName === "/school_admin/users/students" ? "text-foreground" : "text-muted-foreground"
-            }`}
-          />
-        ),
-      },
-      {
-        name: "Teachers",
-        path: "/school_admin/users/teachers",
-        icon: (
-          <LiaChalkboardTeacherSolid
-            className={`sm:w-5 sm:h-5 h-6 w-6 ${
-              pathName === "/school_admin/users/teachers" ? "text-foreground" : "text-muted-foreground"
-            }`}
-          />
-        ),
-      },
-      {
-        name: "Classes",
-        path: "/school_admin/classes",
-        icon: (
-          <LiaBookSolid
-            className={`sm:w-5 sm:h-5 h-6 w-6 ${
-              pathName === "/school_admin/classes" ? "text-foreground" : "text-muted-foreground"
-            }`}
-          />
-        ),
-      },{
-        name: "Reports",
-        path: "#",
-        icon: (
-          <BsFileTextFill
-            className={`sm:w-5 sm:h-5 h-6 w-6 ${
-              pathName === "#" ? "text-foreground" : "text-muted-foreground"
+              pathName === "/school-admin/users" ? "text-foreground" : "text-muted-foreground"
             }`}
           />
         ),
@@ -191,76 +133,62 @@ export const NavbarForSchoolAdmin = () => {
   
     return (
       <div className="flex w-full">
-        <NavigationMenu className="w-full px-3">
-              <Navbar
-                isMenuOpen={isMenuOpen}
-                onMenuOpenChange={setIsMenuOpen}
-                className="bg-background w-full p-2 rounded-full"
-              >
-                {/* Mobile View */}
-                <div className="sm:hidden flex lg:w-full md:w-[950px] w-[600px] px-0">
-                  <NavbarContent className="w-full flex justify-between ">
-                    {/* Left Section */}
-                    {/* <div className="flex items-center left-0 flex-1">
-                    <UserProfiles />
-                    </div> */}
-                    <div className="flex flex-1 w-[90px]">
-                      <NavbarBrand className="font-bold">{siteConfig.siteName} - School Admin</NavbarBrand>
-                    </div>
-  
-                    
-                    {/* Right Section */}
-                    <div className="flex items-center space-x-3">
-                        <MenuActionsSchool pathName={pathName}/>
-                    </div>
-                  </NavbarContent>
+      <NavigationMenu className="w-full px-1">
+        <Navbar
+          isMenuOpen={isMenuOpen}
+          onMenuOpenChange={setIsMenuOpen}
+          className="bg-background w-full p-2 rounded-full"
+        >
+          {/* Mobile View */}
+          <div className="flex sm:hidden lg:w-full md:w-[950px] w-[600px] px-0">
+            <div className="flex flex-1 w-[90px]">
+              <NavbarBrand className="font-bold">{siteConfig.siteName} - Super Admin</NavbarBrand>
+            </div>
+            <div className="flex items-end ml-auto space-x-3">
+              <ModeToggle />
+              <MenuActionsSchool pathName={pathName} />
+            </div>
+          </div>
+
+          {/* Desktop View */}
+          <div className="hidden sm:flex sm:justify-center">
+            <NavbarContent justify="center" className="flex justify-between" style={{ width: "92vw" }}>
+              <div className="flex flex-1 justify-between w-full">
+                {/* Left Section */}
+                <div className="flex flex-1 w-[90px]">
+                  <NavbarBrand className="font-bold">{siteConfig.siteName}</NavbarBrand>
                 </div>
-                {/* Desktop View */}
-                <div className="hidden sm:flex sm:justify-center">
-                  <NavbarContent justify="center" className="flex justify-between" style={{width: "92vw"}}>
-                    <div className="flex flex-1 justify-between w-full">
-                      {/* Left Section */}
-                      <div className="flex flex-1 w-[90px]">
-                        <NavbarBrand className="font-bold">{siteConfig.siteName}</NavbarBrand>
-                      </div>
-                        
-                        {/* Middle Section */}
-                        <div className="flex space-x-3 w-full items-center place-content-center">
-                          {/* Menu Items */}
-                          <div className="flex space-x-4 text-primary">
-                            {menuItems.map((item, index) => (
-                              <NavbarItem key={`${item}-${index}`} className="text-sm font-semibold gap-3">
-                                <Link href={item.path}>
-                                  <span
-                                    className={`flex items-center gap-1 ${
-                                      item.path === pathName ? "text-foreground" : "text-muted-foreground"
-                                    }`}
-                                  >
-                                    {item.icon}
-                                    {item.name}
-                                  </span>
-                                </Link>
-                              </NavbarItem>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                        
-                        {/* Right Section */}
-                        <div className="flex items-center justify-end space-x-2">
-                        <ModeToggle />
-                        <div className="ml-auto flex items-center space-x-4">
-                          <Button className="flex items-center space-x-2" variant="outline">
-                            <LogOutIcon className="h-5 w-5" />
-                            <span>Log Out</span>
-                          </Button>
-                        </div>
-                          
-                        </div>
-                      </NavbarContent>
-                    </div>
-                  </Navbar>
-        </NavigationMenu>
-      </div>
-    );
-  }
+
+                {/* Middle Section */}
+                <div className="flex space-x-3 w-full items-center place-content-center">
+                  <div className="flex space-x-4 text-primary">
+                    {menuItems.map((item, index) => (
+                      <NavbarItem key={`${item}-${index}`} className="text-sm font-semibold gap-3">
+                        <Link href={item.path}>
+                          <span
+                            className={`flex items-center gap-1 ${
+                              item.path === pathName ? "text-foreground" : "text-muted-foreground"
+                            }`}
+                          >
+                            {item.icon}
+                            {item.name}
+                          </span>
+                        </Link>
+                      </NavbarItem>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Section */}
+              <div className="flex items-center space-x-2">
+                <ModeToggle />
+                <LogOutComponent />
+              </div>
+            </NavbarContent>
+          </div>
+        </Navbar>
+      </NavigationMenu>
+    </div>
+  );
+};

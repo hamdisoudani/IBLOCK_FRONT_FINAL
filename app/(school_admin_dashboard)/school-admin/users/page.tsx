@@ -1,88 +1,103 @@
 "use client";
 import { Button } from '@/components/ui/button';
-import React, { useState } from 'react';
-import { TfiLayoutGrid4Alt } from "react-icons/tfi";
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import React, { useEffect, useState } from 'react';
 import "react-form-wizard-component/dist/style.css";
-import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import Link from 'next/link';
-import DataTablePage from '@/components/data-table/data-table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FaSchool } from "react-icons/fa";
-import { FaUsersGear } from "react-icons/fa6";
-import { LiaChalkboardTeacherSolid } from "react-icons/lia";
-import { LiaBookSolid } from "react-icons/lia";
-import { BsFileTextFill } from "react-icons/bs";
-import { CirclePlusIcon } from 'lucide-react';
-
-const CreateUser = () => {
-    return (
-        <Sheet>
-            <SheetTrigger asChild>
-            <Button variant="outline">
-                <CirclePlusIcon className="w-5 h-5 mr-2" />
-                Create User
-                </Button>
-            </SheetTrigger>
+import { DataTable } from '@/components/data-table/data-table';
+import { ArrowUpDown, CirclePlusIcon } from 'lucide-react';
+import axiosInstance from '@/plugins/axios';
+import { ColumnDef } from '@tanstack/react-table';
+import { MembersDetailsEntity, SchoolAdminAllUsers } from '@/lib/types/school_admin_all_users.types';
 
 
-            <SheetContent>
-                <ScrollArea className='h-full'>
-                    <SheetHeader>
-                        <SheetTitle>Create User</SheetTitle>
-                        <SheetDescription>
-                        Enter the user details to create a new account.
-                        </SheetDescription>
-                    </SheetHeader>
-                    <div className="mx-auto max-w-md space-y-6">
-                    <form className="space-y-4">
-                        <div className="space-y-2">
-                        <Label htmlFor="name">Full Name</Label>
-                        <Input id="name" placeholder="Enter your full name" required />
-                        </div>
-                        <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input id="email" placeholder="Enter your email" required type="email" />
-                        </div>
-                        <div className="space-y-2">
-                        <Label htmlFor="password">Password</Label>
-                        <Input id="password" placeholder="Enter a password" required type="password" />
-                        </div>
-                        <div className="space-y-2">
-                        <Label htmlFor="confirm-password">Confirm Password</Label>
-                        <Input id="confirm-password" placeholder="Confirm your password" required type="password" />
-                        </div>
-                        <div className="space-y-2">
-                        <Label htmlFor="role">Role</Label>
-                        <Select defaultValue="student" >
-                            <SelectTrigger>
-                            <SelectValue placeholder="Select a role" />
-                            </SelectTrigger>
-                            <SelectContent>
-                            <SelectItem value="student">Student</SelectItem>
-                            <SelectItem value="teacher">Teacher</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        </div>
-                        
-                    </form>
-                    </div>
-                    <SheetFooter className='mt-1 flex justify-start items-start pr-4'>
-                        <SheetClose asChild>
-                            <Button type="submit">Create User</Button>
-                        </SheetClose>
-                    </SheetFooter>
-                </ScrollArea>
-            </SheetContent>
-
-        </Sheet>
-    )
-}
 
   
-export default function Page() {
+export default function DisplaySchoolUserInformations() { 
+    const [loading, setLoading] = useState<boolean>(true);
+    const [forbidden, setForbidden] = useState<boolean>(false);
+    const [usersData, setUsersData] = useState<SchoolAdminAllUsers | null>(null);
+    const columns: ColumnDef<MembersDetailsEntity>[] = [
+        {
+          header: ({ column }) => {
+            return (
+              <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+              >
+                Name
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            )
+          },
+            accessorKey: 'name',
+            id: 'name',
+        },
+        {
+            header: 'Email',
+            accessorKey: 'email',
+            id: 'email',
+        },
+        {
+            header: 'Role',
+            accessorKey: 'role',
+            id: 'role'
+        },
+        {
+          header: 'Created Projects',
+          accessorKey: 'projectsCount',
+          id: 'projectsCount',
+          cell: ({ getValue, row }) => {
+              const value: any = getValue();
+              return (
+                //   Based on user role, we can decide to show the projects count or not
+                row.getValue('role') === 'teacher' ? (
+                    <span>{value}</span>
+                ) : (
+                    <span>N/A</span>
+                )
+              );
+          }
+      },
+      {
+        header: "Action",
+        accessorKey: '_id',
+        id: '_id',
+        cell: ({ getValue }) => {
+            const value: any = getValue();
+            return (
+                <Button asChild>
+                    <Link href={`/school-admin/users/${value}`}>View User
+                    </Link>
+                </Button>
+            );
+        }
+    }
+       
+    ]
+    useEffect(() => {
+        const getUsers = async () => {
+            await axiosInstance.get('/school-admin/users')
+            .then((res) => {
+                if(res.data){
+                    console.log(res.data)
+                    setUsersData(res.data)
+                }
+            }).catch((err) => {
+                setForbidden(true)
+            }).finally(() => {
+                setLoading(false)
+            })
+        }
+    
+        getUsers();
+      }, []);
+
+    if (loading) {
+        return <div>Loading...</div>
+    }
+    if (forbidden) {
+        return <div>Forbidden</div>
+    }
    
     return (
         <div className="flex w-full h-full">
@@ -93,7 +108,7 @@ export default function Page() {
                     <div className="flex items-center justify-between flex-wrap mb-4 sm:hidden">
                         <h2 className="text-2xl font-bold ">Users</h2>
                         
-                        <CreateUser />
+                        
                     </div>
                     <div className="hidden items-center justify-between flex-wrap mb-4 sm:flex">
                         <h2 className="text-2xl font-bold ">Users</h2>
@@ -101,11 +116,14 @@ export default function Page() {
                             &nbsp;
                         </div>
                         <div className='flex items-center'>
-                            <CreateUser />
+                            
                             
                         </div>
                     </div>
-                    <DataTablePage />
+                    <div className="flex flex-col gap-4">
+                     <DataTable columns={columns} data={usersData?.users.membersDetails || []} /> 
+
+                    </div>.
             </div>
             
             

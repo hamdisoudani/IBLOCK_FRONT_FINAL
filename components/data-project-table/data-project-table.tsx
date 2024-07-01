@@ -45,7 +45,7 @@ import {
 import { Checkbox } from "../ui/checkbox";
 
 type Robot = {
-    name: string;
+    projectName: string;
     model: string;
     status: string;
     lastConnection: string;
@@ -57,7 +57,7 @@ interface DataTableProps<TData, TValue> {
     children?: React.ReactNode
   }
 
-export function DataTable<TData, TValue>({
+export function DataTableProject<TData, TValue>({
     columns,
     data,
     children
@@ -94,14 +94,14 @@ export function DataTable<TData, TValue>({
       <div className="w-full">
         <div className="flex items-center py-4 w-full gap-1">
           <div className="flex-1 w-full">
-            <Input
-              placeholder="Filter by name..."
-              value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-              onChange={(event) =>
-                table.getColumn("name")?.setFilterValue(event.target.value)
-              }
-              className="max-w-sm border border-black dark:border-gray-800"
-            />
+          <Input
+            placeholder="Filter by project name..." 
+            value={(table.getColumn("projectName")?.getFilterValue() as string) ?? ""} 
+            onChange={(event) =>
+                table.getColumn("projectName")?.setFilterValue(event.target.value) 
+            }
+            className="max-w-sm"
+          />          
           </div>
           {children ? (
             <div className="justify-end">
@@ -137,11 +137,11 @@ export function DataTable<TData, TValue>({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-        <div className="rounded-md border border-gray-300 dark:border-gray-700 shadow-sm">
-          <Table >
+        <div className="rounded-md border">
+          <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id} className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {
                     return (
                       <TableHead key={header.id}>
@@ -163,7 +163,6 @@ export function DataTable<TData, TValue>({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
-                    className="`border-b border-gray-200 dark:border-gray-700 ${index % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800'}`"
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
@@ -226,7 +225,7 @@ export default function DataTablePage() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
                   <DropdownMenuItem
-                    onClick={() => navigator.clipboard.writeText(robot.name)}
+                    onClick={() => navigator.clipboard.writeText(robot.projectName)}
                   >
                     Copy Robot name
                   </DropdownMenuItem>
@@ -250,8 +249,8 @@ export default function DataTablePage() {
               </Button>
             )
           },
-            accessorKey: 'name',
-            id: 'name',
+            accessorKey: 'projectName',
+            id: 'projectName',
         },
         {
             header: 'Model',
@@ -299,84 +298,84 @@ export default function DataTablePage() {
 
     const availableData: Robot[] = [
         {
-            name: 'Robot 1',
+            projectName: 'Robot 1',
             model: 'Model 1',
             status: 'Active',
             lastConnection: '2021-08-01',
             isAvailable: true,
         },
         {
-            name: 'Robot 2',
+            projectName: 'Robot 2',
             model: 'Model 2',
             status: 'Inactive',
             lastConnection: '2021-08-02',
             isAvailable: false,
         },
         {
-            name: 'Robot 3',
+            projectName: 'Robot 3',
             model: 'Model 3',
             status: 'Active',
             lastConnection: '2021-08-03',
             isAvailable: true,
         },
         {
-            name: 'Robot 4',
+            projectName: 'Robot 4',
             model: 'Model 4',
             status: 'Inactive',
             lastConnection: '2021-08-04',
             isAvailable: false,
         },
         {
-          name: 'Robot 4',
+          projectName: 'Robot 4',
           model: 'Model 4',
           status: 'Inactive',
           lastConnection: '2021-08-04',
           isAvailable: false,
         },
         {
-          name: 'Robot 4',
+          projectName: 'Robot 4',
           model: 'Model 4',
           status: 'Inactive',
           lastConnection: '2021-08-04',
           isAvailable: false,
         },
         {
-        name: 'Robot 4',
+        projectName: 'Robot 4',
         model: 'Model 4',
         status: 'Inactive',
         lastConnection: '2021-08-04',
         isAvailable: false,
         },
         {
-          name: 'Robot 4',
+          projectName: 'Robot 4',
           model: 'Model 4',
           status: 'Inactive',
           lastConnection: '2021-08-04',
           isAvailable: false,
         },
         {
-        name: 'Robot 4',
+        projectName: 'Robot 4',
         model: 'Model 4',
         status: 'Inactive',
         lastConnection: '2021-08-04',
         isAvailable: false,
         },
         {
-          name: 'Robot 4',
+          projectName: 'Robot 4',
           model: 'Model 4',
           status: 'Inactive',
           lastConnection: '2021-08-04',
           isAvailable: false,
         },
         {
-        name: 'Robot 4',
+        projectName: 'Robot 4',
         model: 'Model 4',
         status: 'Inactive',
         lastConnection: '2021-08-04',
         isAvailable: false,
         },
         {
-          name: 'Robot 4',
+          projectName: 'Robot 4',
           model: 'Model 4',
           status: 'Inactive',
           lastConnection: '2021-08-04',
@@ -387,6 +386,6 @@ export default function DataTablePage() {
     
 
     return (
-        <DataTable columns={columns} data={availableData} />
+        <DataTableProject columns={columns} data={availableData} />
     )
 }

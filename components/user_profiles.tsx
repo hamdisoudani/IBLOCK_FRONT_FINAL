@@ -22,33 +22,26 @@ import {
 import axiosInstance from "@/plugins/axios"
 import { Skeleton } from "./ui/skeleton"
 import { useErrorToast } from "@/hooks/useToast"
-import { useProfileContext } from "./context/userprofile.context"
+import { ProfileType, useProfileContext } from "./context/userprofile.context"
 import { Badge } from "./ui/badge"
 import { useSession } from "next-auth/react"
 import { usePathname, useRouter } from "next/navigation"
 
-type ProfileType = {
-    _id: string, 
-    profileName: string,
-    createdAt: string,
-    updatedAt: string,
-    type: string
-}
 
-interface Profiles {
-    selectedProfile: ProfileType,
-    availableProfiles: ProfileType[]
-}
+
+
 
 export function UserProfiles() {
+<<<<<<< HEAD
     const {currentProfile, setCurrentProfile, setIsLoading, setIsLoadingError} = useProfileContext()
+=======
+    const {currentProfile, setIsLoading, profilesData, isLoadingProfiles, getUserProfiles} = useProfileContext()
+>>>>>>> f67f35d3bff4c40eb902f1554c9c621b1fdaf505
     const [open, setOpen] = React.useState(false)
-    const [value, setValue] = React.useState("")
-    const [data, setData] = React.useState<Profiles>();
-    const [loading, setLoading] = React.useState(true);
     const { data: session, update } = useSession();
     const currentPath = usePathname();
     const router = useRouter();
+<<<<<<< HEAD
     React.useEffect(() => {
         const fetchDataFromApi = async () => {
             try {
@@ -72,9 +65,10 @@ export function UserProfiles() {
           fetchDataFromApi();
         }
     }, [value]);
+=======
+>>>>>>> f67f35d3bff4c40eb902f1554c9c621b1fdaf505
 
     const SwitchCurrentProfile = async (profile: ProfileType) => {
-        setLoading(true);
         setIsLoading(true);
         await axiosInstance.post('/profile/switch', {
             profileId: profile._id
@@ -87,25 +81,24 @@ export function UserProfiles() {
                     accessToken: res.data.accessToken,
                   },
                 })
-
+              await getUserProfiles()
             }
             if(currentPath != "/dashboard") router.push("/dashboard"); // Redirect to dashboard
         }).catch(() => {
             useErrorToast("There was a problem processing your request")
         }).finally(() => {
-            setValue(profile.profileName)
             setOpen(false)
             setIsLoading(false)
         })
     }
     
-        if(loading) return (
-            <>
-                <div className="flex items-center space-x-4">
-                    <Skeleton className="h-10 w-52" />
-                </div>
-            </>
-        )
+    if(isLoadingProfiles) return (
+        <>
+            <div className="flex items-center space-x-4">
+                <Skeleton className="h-10 sm:w-[180px] w-[150px]" />
+            </div>
+        </>
+    )
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -114,10 +107,10 @@ export function UserProfiles() {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="sm:w-[180px] w-[150px] flex items-center"
+          className="sm:w-[180px] w-[150px] flex items-center border dark:border-white border-black"
         >
           <span className="truncate flex-1 text-left">
-            {data?.selectedProfile.profileName}
+            {profilesData?.selectedProfile.profileName}
           </span>
           <ChevronsUpDown className="ml-1 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -146,7 +139,7 @@ export function UserProfiles() {
             </CommandItem>
           <CommandSeparator />
           <CommandGroup heading="Available Profiles" className="z-[9999]">
-            {data?.availableProfiles.map((profile) => (
+            {profilesData?.availableProfiles.map((profile) => (
               <CommandItem
                 key={profile._id}
                 value={profile.profileName}
