@@ -32,41 +32,12 @@ import { usePathname, useRouter } from "next/navigation"
 
 
 export function UserProfiles() {
-<<<<<<< HEAD
-    const {currentProfile, setCurrentProfile, setIsLoading, setIsLoadingError} = useProfileContext()
-=======
-    const {currentProfile, setIsLoading, profilesData, isLoadingProfiles, getUserProfiles} = useProfileContext()
->>>>>>> f67f35d3bff4c40eb902f1554c9c621b1fdaf505
+    const {currentProfile, setIsLoading, profilesData, isLoadingProfiles, getUserProfiles, setIsLoadingError} = useProfileContext()
     const [open, setOpen] = React.useState(false)
     const { data: session, update } = useSession();
     const currentPath = usePathname();
     const router = useRouter();
-<<<<<<< HEAD
-    React.useEffect(() => {
-        const fetchDataFromApi = async () => {
-            try {
-            // Contact the API endpoint
-            const response = await axiosInstance.get('/profile');
-            
-            if (response.data) {
-              setData(response.data);
-              setCurrentProfile(response.data.selectedProfile)
-            } else {
-              setIsLoadingError(true)
-            }
-            } catch (error) {
-              setIsLoadingError(true)
-            } finally {
-            setLoading(false);
-            }
-        };
 
-        if(value != currentProfile?._id.toString()) {
-          fetchDataFromApi();
-        }
-    }, [value]);
-=======
->>>>>>> f67f35d3bff4c40eb902f1554c9c621b1fdaf505
 
     const SwitchCurrentProfile = async (profile: ProfileType) => {
         setIsLoading(true);
@@ -86,6 +57,7 @@ export function UserProfiles() {
             if(currentPath != "/dashboard") router.push("/dashboard"); // Redirect to dashboard
         }).catch(() => {
             useErrorToast("There was a problem processing your request")
+            setIsLoadingError(true)
         }).finally(() => {
             setOpen(false)
             setIsLoading(false)

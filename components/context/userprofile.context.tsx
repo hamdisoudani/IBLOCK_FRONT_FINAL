@@ -34,12 +34,9 @@ type ProfileContextType = {
   userInformation: accessTokenType | null;
   isLoadingProfiles: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
-<<<<<<< HEAD
   setIsLoadingError: React.Dispatch<React.SetStateAction<boolean>>;
-=======
   profilesData: Profiles  | undefined,
   getUserProfiles: () => void
->>>>>>> f67f35d3bff4c40eb902f1554c9c621b1fdaf505
 };
 
 const ProfileContext = createContext<ProfileContextType>({
@@ -47,12 +44,9 @@ const ProfileContext = createContext<ProfileContextType>({
   userInformation: null,
   isLoadingProfiles: true,
   setIsLoading: () => {},
-<<<<<<< HEAD
-  setIsLoadingError: () => {}
-=======
+  setIsLoadingError: () => {},
   profilesData: undefined,
   getUserProfiles: () => {}
->>>>>>> f67f35d3bff4c40eb902f1554c9c621b1fdaf505
 });
 
 export const useProfileContext = () => useContext(ProfileContext);
@@ -62,10 +56,7 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const [userInformation, setUserInformation] = useState<accessTokenType | null>(null);
     const [isLoadingProfiles, setIsLoading] = useState<boolean>(true);
     const [isLoadingError, setIsLoadingError] = useState<boolean>(false);
-<<<<<<< HEAD
     const { isOffline } = useIsOnline();
-
-=======
     const [profilesData, setData] = useState<Profiles>();
     const fetchCurrentUserInformation = async () => {
       try {
@@ -97,7 +88,6 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setIsLoading(false);
       }
   };
->>>>>>> f67f35d3bff4c40eb902f1554c9c621b1fdaf505
     useEffect(() => {
         fetchCurrentUserInformation();
         getUserProfiles()
@@ -106,11 +96,8 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if(isLoadingError) return <ErrorLoadingPgae />
     if(isOffline) return <NoInternetConnection />
     return (
-<<<<<<< HEAD
-      <ProfileContext.Provider value={{ currentProfile, setCurrentProfile, userInformation, isLoadingProfiles, setIsLoading, setIsLoadingError }}>
-=======
-      <ProfileContext.Provider value={{ currentProfile, userInformation, isLoadingProfiles, setIsLoading, profilesData, getUserProfiles }}>
->>>>>>> f67f35d3bff4c40eb902f1554c9c621b1fdaf505
+
+      <ProfileContext.Provider value={{ currentProfile, userInformation, isLoadingProfiles, setIsLoading, profilesData, getUserProfiles, setIsLoadingError }}>
         {children}
       </ProfileContext.Provider>
     );
